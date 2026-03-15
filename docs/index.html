@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lancers Scout</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1d27;
+      border-bottom: 1px solid #2d3148;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.02em; }
+    header h1 span { color: #6c63ff; }
+
+    #updated { font-size: 0.75rem; color: #64748b; }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    .stat.apply { background: #14532d; color: #4ade80; }
+    .stat.maybe { background: #713f12; color: #fbbf24; }
+    .stat.skip  { background: #450a0a; color: #f87171; }
+
+    .filters {
+      padding: 16px 24px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid #2d3148;
+      background: #1a1d27;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: #6c63ff; color: #e2e8f0; }
+    .filter-btn.active { background: #6c63ff; border-color: #6c63ff; color: #fff; font-weight: 600; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+      padding: 0 24px 40px;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .card:hover { border-color: #6c63ff; transform: translateY(-2px); }
+    .card.apply { border-left: 3px solid #4ade80; }
+    .card.maybe { border-left: 3px solid #fbbf24; }
+    .card.skip  { border-left: 3px solid #f87171; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .score-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .apply .score-badge { background: #14532d; color: #4ade80; }
+    .maybe .score-badge { background: #713f12; color: #fbbf24; }
+    .skip  .score-badge { background: #450a0a; color: #f87171; }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #e2e8f0;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+    .meta-row .label { color: #64748b; min-width: 56px; }
+    .meta-row .value { color: #cbd5e1; }
+
+    .badge-new {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: #6c63ff;
+      color: #fff;
+      padding: 1px 7px;
+      border-radius: 999px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .reason {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.5;
+      border-top: 1px solid #2d3148;
+      padding-top: 10px;
+    }
+
+    .proposal-toggle {
+      font-size: 0.75rem;
+      color: #6c63ff;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .proposal-toggle:hover { color: #a78bfa; }
+
+    .proposal-text {
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      background: #12141d;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 12px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      display: none;
+      position: relative;
+    }
+    .proposal-text.open { display: block; }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 0.7rem;
+      padding: 3px 10px;
+      background: #2d3148;
+      border: none;
+      border-radius: 6px;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: #6c63ff; color: #fff; }
+
+    .apply-btn {
+      display: block;
+      text-align: center;
+      background: #6c63ff;
+      color: #fff;
+      text-decoration: none;
+      padding: 9px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: background 0.15s;
+      margin-top: auto;
+    }
+    .apply-btn:hover { background: #5b52e0; }
+
+    #empty {
+      text-align: center;
+      color: #64748b;
+      padding: 60px 24px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      color: #64748b;
+      padding: 80px 24px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Lancers <span>Scout</span></h1>
+  <div class="stats" id="stats"></div>
+  <div id="updated"></div>
+</header>
+
+<div class="filters">
+  <button class="filter-btn active" data-filter="all">すべて</button>
+  <button class="filter-btn" data-filter="apply">Apply</button>
+  <button class="filter-btn" data-filter="maybe">Maybe</button>
+  <button class="filter-btn" data-filter="skip">Skip</button>
+</div>
+
+<div class="grid" id="grid">
+  <div class="loading" style="grid-column:1/-1">読み込み中...</div>
+</div>
+<div id="empty">該当する案件がありません</div>
+
+<script>
+  let allProjects = [];
+  let activeFilter = "all";
+
+  async function load() {
+    try {
+      const res = await fetch("results.json?t=" + Date.now());
+      allProjects = await res.json();
+      render();
+      renderStats();
+    } catch (e) {
+      document.getElementById("grid").innerHTML =
+        '<p style="grid-column:1/-1;color:#f87171;padding:40px">results.json が見つかりません。先にスクレイパーを実行してください。</p>';
+    }
+  }
+
+  function renderStats() {
+    const apply = allProjects.filter(p => p.recommendation === "apply").length;
+    const maybe = allProjects.filter(p => p.recommendation === "maybe").length;
+    const skip  = allProjects.filter(p => p.recommendation === "skip").length;
+    document.getElementById("stats").innerHTML = `
+      <span class="stat apply">Apply ${apply}</span>
+      <span class="stat maybe">Maybe ${maybe}</span>
+      <span class="stat skip">Skip ${skip}</span>
+    `;
+    // Try to get last modified from server
+    fetch("results.json", {method:"HEAD"}).then(r => {
+      const lm = r.headers.get("last-modified");
+      if (lm) document.getElementById("updated").textContent = "更新: " + new Date(lm).toLocaleString("ja-JP");
+    }).catch(()=>{});
+  }
+
+  function render() {
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
+    const filtered = activeFilter === "all"
+      ? allProjects
+      : allProjects.filter(p => p.recommendation === activeFilter);
+
+    if (!filtered.length) {
+      grid.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+
+    grid.innerHTML = filtered.map((p, i) => {
+      const hasProposal = p.proposal && p.proposal.trim();
+      return `
+        <div class="card ${p.recommendation}">
+          <div class="card-header">
+            <div class="card-title">
+              ${p.is_new ? '<span class="badge-new">NEW</span>' : ""}
+              ${escHtml(p.title)}
+            </div>
+            <span class="score-badge">${p.score}/10</span>
+          </div>
+
+          <div class="meta">
+            <div class="meta-row"><span class="label">予算</span><span class="value">${escHtml(p.budget)}</span></div>
+            <div class="meta-row"><span class="label">カテゴリ</span><span class="value">${escHtml(p.category)}</span></div>
+            <div class="meta-row"><span class="label">提案数</span><span class="value">${escHtml(p.proposal_count)}</span></div>
+            <div class="meta-row"><span class="label">キーワード</span><span class="value">${escHtml(p.keyword)}</span></div>
+          </div>
+
+          <div class="reason">${escHtml(p.reason)}</div>
+
+          ${hasProposal ? `
+            <div class="proposal-toggle" onclick="toggleProposal(this)">
+              <span>▶</span> 提案文を見る
+            </div>
+            <div class="proposal-text">
+              <button class="copy-btn" onclick="copyProposal(this)">コピー</button>${escHtml(p.proposal)}
+            </div>
+          ` : ""}
+
+          <a class="apply-btn" href="${escHtml(p.url)}" target="_blank" rel="noopener">
+            Lancers で見る →
+          </a>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function toggleProposal(el) {
+    const text = el.nextElementSibling;
+    const open = text.classList.toggle("open");
+    el.querySelector("span").textContent = open ? "▼" : "▶";
+    el.childNodes[1].textContent = open ? " 提案文を閉じる" : " 提案文を見る";
+  }
+
+  function copyProposal(btn) {
+    const text = btn.parentElement.textContent.replace("コピー", "").trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = "コピー済";
+      setTimeout(() => btn.textContent = "コピー", 1500);
+    });
+  }
+
+  function escHtml(str) {
+    return String(str || "")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeFilter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  load();
+</script>
+</body>
+</html>

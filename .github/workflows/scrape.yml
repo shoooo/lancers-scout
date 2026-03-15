@@ -41,10 +41,13 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: python notify_slack.py results.json
 
+      - name: Copy results to docs
+        run: cp results.json docs/results.json
+
       - name: Commit results
         run: |
           git config user.name "lancers-scout[bot]"
           git config user.email "bot@lancers-scout"
-          git add results.json
+          git add results.json docs/results.json
           git diff --cached --quiet || git commit -m "chore: update results $(date +'%Y-%m-%d %H:%M JST')"
           git push

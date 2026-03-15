@@ -1,0 +1,32 @@
+{
+  "name": "Vibin合同会社",
+  "experience_years": 4,
+  "hourly_rate": 2000,
+  "skills": [
+    "Shopify",
+    "WordPress",
+    "React / Next.js",
+    "TypeScript",
+    "HTML5 / CSS / Tailwind CSS",
+    "Node.js / Express",
+    "ECサイト構築",
+    "LP制作",
+    "ホームページ制作",
+    "AWS (Amplify / AppSync)",
+    "Supabase",
+    "GraphQL",
+    "AI機能実装（Claude / OpenAI API）",
+    "Webアプリ開発"
+  ],
+  "past_work": [
+    "国内向けeギフトサービスのLPおよびコーポレートサイト制作（Next.js / Tailwind CSS）",
+    "自動車部品販売業（B2B）のコーポレートサイト制作（提案・設計・実装）",
+    "ECサービス向け運用データ可視化ダッシュボード開発（Next.js / BigQuery / Chart.js）",
+    "フィジカル商品販売向けECストアのWebアプリ開発（Next.js / React）"
+  ],
+  "strengths": "ECサイト・Webサービスの設計〜実装まで一貫対応。AI機能の組み込みも得意。日英バイリンガル対応可。納期厳守・迅速なコミュニケーション。",
+  "availability": "平日夜・週末中心（週20〜25時間程度）。AI活用により対応スピード向上。",
+  "tools": ["React", "Next.js", "Tailwind CSS", "Supabase", "AWS", "Figma", "Shopify", "WordPress"],
+  "languages": ["日本語（ネイティブ）", "English (bilingual — 米国在住3年・IB取得)"],
+  "note": "法人として活動。ECサイト・ホームページ・LP制作を中心に受け付けています。ReactやNext.jsを使ったモダンなWeb開発から、ShopifyやWordPressを使ったCMS構築まで幅広く対応可能です。AI機能の組み込みにも対応しており、単なるサイト制作以上の価値を提供できます。小〜中規模案件を得意としており、スピーディな納品を心がけています。"
+}

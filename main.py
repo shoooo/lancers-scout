@@ -10,6 +10,9 @@ Usage:
     python main.py --filter apply               # show only "apply" recommendations
     python main.py --propose                    # generate Japanese proposal messages for top picks
     python main.py --propose-top 3              # generate proposals for top 3 "apply" projects
+    python main.py --propose --apply            # generate proposals AND auto-submit them (asks confirmation per project)
+    python main.py --propose --apply --yes      # auto-submit without confirmation (CI mode)
+    python main.py --headful                    # show browser window (useful for debugging login)
 """
 
 import argparse
@@ -76,6 +79,12 @@ def main() -> None:
                         help="Generate Japanese proposal messages for top 'apply' projects")
     parser.add_argument("--propose-top", type=int, default=3,
                         help="Number of proposals to generate when using --propose (default: 3)")
+    parser.add_argument("--apply", action="store_true",
+                        help="Auto-submit proposals via browser (requires --propose)")
+    parser.add_argument("--yes", action="store_true",
+                        help="Skip confirmation prompts when submitting (CI mode)")
+    parser.add_argument("--headful", action="store_true",
+                        help="Show browser window instead of running headless")
     args = parser.parse_args()
 
     keywords = [k.strip() for k in args.keywords.split(",")] if args.keywords else TARGET_KEYWORDS
@@ -135,6 +144,33 @@ def main() -> None:
 
     for i, r in enumerate(top, 1):
         print_result(r, i)
+
+    # --- AUTO-APPLY ---
+    if args.apply:
+        if not args.propose:
+            print("--apply requires --propose to generate proposal messages first.")
+        else:
+            from browser import LancersSession
+            apply_targets = [r for r in ranked if r.get("proposal")]
+            if not apply_targets:
+                print("No proposals generated yet. Use --propose first.")
+            else:
+                print(f"\n{color('=== Submitting Proposals ===', 'bold')}")
+                submitted = 0
+                with LancersSession(headless=not args.headful) as session:
+                    session.ensure_logged_in()
+                    for r in apply_targets:
+                        print(f"\n  [{submitted+1}/{len(apply_targets)}] {r['title'][:60]}")
+                        ok = session.submit_proposal(
+                            project_url=r["url"],
+                            proposal_text=r["proposal"],
+                            budget=r.get("budget", ""),
+                            confirm=not args.yes,
+                        )
+                        if ok:
+                            r["applied"] = True
+                            submitted += 1
+                print(f"\n{color(f'Submitted {submitted}/{len(apply_targets)} proposals.', 'bold')}")
 
     # --- SAVE ---
     if args.output:

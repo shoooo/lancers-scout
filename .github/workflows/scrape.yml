@@ -23,16 +23,20 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt && playwright install chromium --with-deps
 
-      - name: Run scraper and analyzer
+      - name: Run scraper, analyze, and auto-apply
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LANCERS_EMAIL: ${{ secrets.LANCERS_EMAIL }}
+          LANCERS_PASSWORD: ${{ secrets.LANCERS_PASSWORD }}
         run: |
           python main.py \
             --pages 2 \
-            --filter apply \
-            --top 10 \
+            --propose \
+            --propose-top 5 \
+            --apply \
+            --yes \
             --output results.json
 
       - name: Post to Slack

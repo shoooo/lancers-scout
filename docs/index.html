@@ -9,214 +9,252 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0f1117;
-      color: #e2e8f0;
+      background: #f5f7fa;
+      color: #1a1a2e;
       min-height: 100vh;
     }
 
+    /* HEADER */
     header {
-      background: #1a1d27;
-      border-bottom: 1px solid #2d3148;
-      padding: 20px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 28px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 20px;
       flex-wrap: wrap;
-      gap: 12px;
       position: sticky;
       top: 0;
       z-index: 10;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
-    header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.02em; }
-    header h1 span { color: #6c63ff; }
-
-    #updated { font-size: 0.75rem; color: #64748b; }
-
-    .stats {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #1a1a2e;
+      letter-spacing: -0.02em;
     }
+
+    header h1 span { color: #4f46e5; }
+
+    #updated {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      margin-left: auto;
+    }
+
+    .stats { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .stat {
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 14px;
       border-radius: 999px;
     }
-    .stat.apply { background: #14532d; color: #4ade80; }
-    .stat.maybe { background: #713f12; color: #fbbf24; }
-    .stat.skip  { background: #450a0a; color: #f87171; }
+    .stat.apply { background: #dcfce7; color: #15803d; }
+    .stat.maybe { background: #fef9c3; color: #a16207; }
+    .stat.skip  { background: #fee2e2; color: #b91c1c; }
 
-    .filters {
-      padding: 16px 24px;
+    /* FILTERS */
+    .toolbar {
+      padding: 16px 28px;
       display: flex;
       gap: 8px;
+      align-items: center;
       flex-wrap: wrap;
     }
 
     .filter-btn {
-      padding: 6px 16px;
+      padding: 7px 18px;
       border-radius: 999px;
-      border: 1px solid #2d3148;
-      background: #1a1d27;
-      color: #94a3b8;
+      border: 1.5px solid #e2e8f0;
+      background: #fff;
+      color: #64748b;
       cursor: pointer;
       font-size: 0.8rem;
-      transition: all 0.15s;
+      font-weight: 500;
+      transition: all 0.12s;
     }
-    .filter-btn:hover { border-color: #6c63ff; color: #e2e8f0; }
-    .filter-btn.active { background: #6c63ff; border-color: #6c63ff; color: #fff; font-weight: 600; }
+    .filter-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+    .filter-btn.active {
+      background: #4f46e5;
+      border-color: #4f46e5;
+      color: #fff;
+      font-weight: 700;
+    }
 
+    .count-label {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-left: auto;
+    }
+
+    /* GRID */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
       gap: 16px;
-      padding: 0 24px 40px;
+      padding: 0 28px 48px;
     }
 
+    /* CARD */
     .card {
-      background: #1a1d27;
-      border: 1px solid #2d3148;
-      border-radius: 12px;
-      padding: 20px;
+      background: #fff;
+      border-radius: 14px;
+      border: 1.5px solid #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+    .card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .card-stripe {
+      height: 4px;
+    }
+    .apply .card-stripe { background: #22c55e; }
+    .maybe .card-stripe { background: #eab308; }
+    .skip  .card-stripe { background: #ef4444; }
+
+    .card-body {
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      transition: border-color 0.15s, transform 0.15s;
+      flex: 1;
     }
-    .card:hover { border-color: #6c63ff; transform: translateY(-2px); }
-    .card.apply { border-left: 3px solid #4ade80; }
-    .card.maybe { border-left: 3px solid #fbbf24; }
-    .card.skip  { border-left: 3px solid #f87171; }
 
-    .card-header {
+    .card-top {
       display: flex;
       align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
     }
 
     .score-badge {
-      font-size: 0.75rem;
-      font-weight: 700;
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      font-weight: 800;
       padding: 3px 10px;
       border-radius: 999px;
-      white-space: nowrap;
-      flex-shrink: 0;
+      margin-top: 2px;
     }
-    .apply .score-badge { background: #14532d; color: #4ade80; }
-    .maybe .score-badge { background: #713f12; color: #fbbf24; }
-    .skip  .score-badge { background: #450a0a; color: #f87171; }
+    .apply .score-badge { background: #dcfce7; color: #15803d; }
+    .maybe .score-badge { background: #fef9c3; color: #a16207; }
+    .skip  .score-badge { background: #fee2e2; color: #b91c1c; }
 
     .card-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      line-height: 1.4;
-      color: #e2e8f0;
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.45;
+      color: #1a1a2e;
     }
-
-    .meta {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .meta-row {
-      display: flex;
-      gap: 8px;
-      font-size: 0.78rem;
-      color: #94a3b8;
-    }
-    .meta-row .label { color: #64748b; min-width: 56px; }
-    .meta-row .value { color: #cbd5e1; }
 
     .badge-new {
       display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 700;
-      background: #6c63ff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      background: #4f46e5;
       color: #fff;
       padding: 1px 7px;
       border-radius: 999px;
-      margin-left: 6px;
+      margin-right: 4px;
       vertical-align: middle;
     }
 
-    .reason {
-      font-size: 0.78rem;
-      color: #94a3b8;
-      line-height: 1.5;
-      border-top: 1px solid #2d3148;
-      padding-top: 10px;
+    /* META TABLE */
+    .meta {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+      font-size: 0.76rem;
     }
+    .meta-label { color: #94a3b8; font-weight: 500; }
+    .meta-value { color: #475569; font-weight: 500; }
 
+    /* REASON */
+    .reason {
+      font-size: 0.77rem;
+      color: #475569;
+      line-height: 1.55;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 10px 12px;
+      border-left: 3px solid #e2e8f0;
+    }
+    .apply .reason { border-left-color: #22c55e; }
+    .maybe .reason { border-left-color: #eab308; }
+    .skip  .reason { border-left-color: #ef4444; }
+
+    /* PROPOSAL */
     .proposal-toggle {
-      font-size: 0.75rem;
-      color: #6c63ff;
+      font-size: 0.76rem;
+      color: #4f46e5;
       cursor: pointer;
-      user-select: none;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
+      user-select: none;
     }
-    .proposal-toggle:hover { color: #a78bfa; }
+    .proposal-toggle:hover { color: #3730a3; }
 
-    .proposal-text {
-      font-size: 0.78rem;
-      color: #cbd5e1;
-      background: #12141d;
-      border: 1px solid #2d3148;
-      border-radius: 8px;
-      padding: 12px;
-      line-height: 1.7;
-      white-space: pre-wrap;
+    .proposal-box {
       display: none;
       position: relative;
     }
-    .proposal-text.open { display: block; }
+    .proposal-box.open { display: block; }
+
+    .proposal-text {
+      font-size: 0.78rem;
+      color: #334155;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 14px 36px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+    }
 
     .copy-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
+      bottom: 10px;
+      right: 10px;
       font-size: 0.7rem;
-      padding: 3px 10px;
-      background: #2d3148;
+      padding: 4px 12px;
+      background: #4f46e5;
       border: none;
       border-radius: 6px;
-      color: #94a3b8;
+      color: #fff;
       cursor: pointer;
+      font-weight: 600;
+      transition: background 0.12s;
     }
-    .copy-btn:hover { background: #6c63ff; color: #fff; }
+    .copy-btn:hover { background: #3730a3; }
+    .copy-btn.copied { background: #22c55e; }
 
+    /* APPLY BUTTON */
     .apply-btn {
       display: block;
       text-align: center;
-      background: #6c63ff;
+      background: #4f46e5;
       color: #fff;
       text-decoration: none;
-      padding: 9px;
-      border-radius: 8px;
+      padding: 10px;
       font-size: 0.82rem;
-      font-weight: 600;
-      transition: background 0.15s;
-      margin-top: auto;
+      font-weight: 700;
+      transition: background 0.12s;
     }
-    .apply-btn:hover { background: #5b52e0; }
+    .apply-btn:hover { background: #3730a3; }
 
-    #empty {
+    /* EMPTY / LOADING */
+    .message {
+      grid-column: 1 / -1;
       text-align: center;
-      color: #64748b;
-      padding: 60px 24px;
-      font-size: 0.9rem;
-      display: none;
-    }
-
-    .loading {
-      text-align: center;
-      color: #64748b;
+      color: #94a3b8;
       padding: 80px 24px;
       font-size: 0.9rem;
     }
@@ -230,119 +268,117 @@
   <div id="updated"></div>
 </header>
 
-<div class="filters">
+<div class="toolbar">
   <button class="filter-btn active" data-filter="all">すべて</button>
   <button class="filter-btn" data-filter="apply">Apply</button>
   <button class="filter-btn" data-filter="maybe">Maybe</button>
   <button class="filter-btn" data-filter="skip">Skip</button>
+  <span class="count-label" id="count-label"></span>
 </div>
 
 <div class="grid" id="grid">
-  <div class="loading" style="grid-column:1/-1">読み込み中...</div>
+  <div class="message">読み込み中...</div>
 </div>
-<div id="empty">該当する案件がありません</div>
 
 <script>
-  let allProjects = [];
-  let activeFilter = "all";
+  let all = [];
+  let filter = "all";
 
   async function load() {
     try {
       const res = await fetch("results.json?t=" + Date.now());
-      allProjects = await res.json();
+      all = await res.json();
       render();
       renderStats();
-    } catch (e) {
+      fetch("results.json", { method: "HEAD" }).then(r => {
+        const lm = r.headers.get("last-modified");
+        if (lm) document.getElementById("updated").textContent =
+          "更新: " + new Date(lm).toLocaleString("ja-JP");
+      }).catch(() => {});
+    } catch {
       document.getElementById("grid").innerHTML =
-        '<p style="grid-column:1/-1;color:#f87171;padding:40px">results.json が見つかりません。先にスクレイパーを実行してください。</p>';
+        '<div class="message">results.json が見つかりません。先にスクレイパーを実行してください。</div>';
     }
   }
 
   function renderStats() {
-    const apply = allProjects.filter(p => p.recommendation === "apply").length;
-    const maybe = allProjects.filter(p => p.recommendation === "maybe").length;
-    const skip  = allProjects.filter(p => p.recommendation === "skip").length;
-    document.getElementById("stats").innerHTML = `
-      <span class="stat apply">Apply ${apply}</span>
-      <span class="stat maybe">Maybe ${maybe}</span>
-      <span class="stat skip">Skip ${skip}</span>
-    `;
-    // Try to get last modified from server
-    fetch("results.json", {method:"HEAD"}).then(r => {
-      const lm = r.headers.get("last-modified");
-      if (lm) document.getElementById("updated").textContent = "更新: " + new Date(lm).toLocaleString("ja-JP");
-    }).catch(()=>{});
+    const apply = all.filter(p => p.recommendation === "apply").length;
+    const maybe = all.filter(p => p.recommendation === "maybe").length;
+    const skip  = all.filter(p => p.recommendation === "skip").length;
+    document.getElementById("stats").innerHTML =
+      `<span class="stat apply">Apply ${apply}</span>` +
+      `<span class="stat maybe">Maybe ${maybe}</span>` +
+      `<span class="stat skip">Skip ${skip}</span>`;
   }
 
   function render() {
+    const filtered = filter === "all" ? all : all.filter(p => p.recommendation === filter);
+    document.getElementById("count-label").textContent = `${filtered.length} 件`;
     const grid = document.getElementById("grid");
-    const empty = document.getElementById("empty");
-    const filtered = activeFilter === "all"
-      ? allProjects
-      : allProjects.filter(p => p.recommendation === activeFilter);
 
     if (!filtered.length) {
-      grid.innerHTML = "";
-      empty.style.display = "block";
+      grid.innerHTML = '<div class="message">該当する案件がありません</div>';
       return;
     }
-    empty.style.display = "none";
 
     grid.innerHTML = filtered.map((p, i) => {
       const hasProposal = p.proposal && p.proposal.trim();
       return `
         <div class="card ${p.recommendation}">
-          <div class="card-header">
-            <div class="card-title">
-              ${p.is_new ? '<span class="badge-new">NEW</span>' : ""}
-              ${escHtml(p.title)}
+          <div class="card-stripe"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <span class="score-badge">${p.score}/10</span>
+              <div class="card-title">
+                ${p.is_new ? '<span class="badge-new">NEW</span>' : ""}
+                ${esc(p.title)}
+              </div>
             </div>
-            <span class="score-badge">${p.score}/10</span>
+
+            <div class="meta">
+              <span class="meta-label">予算</span><span class="meta-value">${esc(p.budget)}</span>
+              <span class="meta-label">カテゴリ</span><span class="meta-value">${esc(p.category)}</span>
+              <span class="meta-label">提案数</span><span class="meta-value">${esc(p.proposal_count)}</span>
+              <span class="meta-label">キーワード</span><span class="meta-value">${esc(p.keyword)}</span>
+            </div>
+
+            <div class="reason">${esc(p.reason)}</div>
+
+            ${hasProposal ? `
+              <div class="proposal-toggle" onclick="toggle(this)">
+                <span class="arrow">▶</span> 提案文を見る
+              </div>
+              <div class="proposal-box">
+                <div class="proposal-text">${esc(p.proposal)}</div>
+                <button class="copy-btn" onclick="copy(this)">コピー</button>
+              </div>
+            ` : ""}
           </div>
-
-          <div class="meta">
-            <div class="meta-row"><span class="label">予算</span><span class="value">${escHtml(p.budget)}</span></div>
-            <div class="meta-row"><span class="label">カテゴリ</span><span class="value">${escHtml(p.category)}</span></div>
-            <div class="meta-row"><span class="label">提案数</span><span class="value">${escHtml(p.proposal_count)}</span></div>
-            <div class="meta-row"><span class="label">キーワード</span><span class="value">${escHtml(p.keyword)}</span></div>
-          </div>
-
-          <div class="reason">${escHtml(p.reason)}</div>
-
-          ${hasProposal ? `
-            <div class="proposal-toggle" onclick="toggleProposal(this)">
-              <span>▶</span> 提案文を見る
-            </div>
-            <div class="proposal-text">
-              <button class="copy-btn" onclick="copyProposal(this)">コピー</button>${escHtml(p.proposal)}
-            </div>
-          ` : ""}
-
-          <a class="apply-btn" href="${escHtml(p.url)}" target="_blank" rel="noopener">
-            Lancers で見る →
+          <a class="apply-btn" href="${esc(p.url)}" target="_blank" rel="noopener">
+            Lancers で開く →
           </a>
-        </div>
-      `;
+        </div>`;
     }).join("");
   }
 
-  function toggleProposal(el) {
-    const text = el.nextElementSibling;
-    const open = text.classList.toggle("open");
-    el.querySelector("span").textContent = open ? "▼" : "▶";
+  function toggle(el) {
+    const box = el.nextElementSibling;
+    const open = box.classList.toggle("open");
+    el.querySelector(".arrow").textContent = open ? "▼" : "▶";
     el.childNodes[1].textContent = open ? " 提案文を閉じる" : " 提案文を見る";
   }
 
-  function copyProposal(btn) {
-    const text = btn.parentElement.textContent.replace("コピー", "").trim();
+  function copy(btn) {
+    const text = btn.previousElementSibling.textContent.trim();
     navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = "コピー済";
-      setTimeout(() => btn.textContent = "コピー", 1500);
+      btn.textContent = "コピー済 ✓";
+      btn.classList.add("copied");
+      setTimeout(() => { btn.textContent = "コピー"; btn.classList.remove("copied"); }, 2000);
     });
   }
 
-  function escHtml(str) {
-    return String(str || "")
+  function esc(s) {
+    return String(s || "")
       .replace(/&/g,"&amp;").replace(/</g,"&lt;")
       .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
@@ -351,7 +387,7 @@
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      activeFilter = btn.dataset.filter;
+      filter = btn.dataset.filter;
       render();
     });
   });

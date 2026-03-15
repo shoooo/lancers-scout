@@ -85,7 +85,20 @@ def main() -> None:
                         help="Skip confirmation prompts when submitting (CI mode)")
     parser.add_argument("--headful", action="store_true",
                         help="Show browser window instead of running headless")
+    parser.add_argument("--update-profile", action="store_true",
+                        help="Update your Lancers profile from profile.json")
     args = parser.parse_args()
+
+    # --- UPDATE PROFILE (standalone action) ---
+    if args.update_profile:
+        from browser import LancersSession
+        profile = load_profile()
+        print(color("\n=== Updating Lancers Profile ===", "bold"))
+        with LancersSession(headless=not args.headful) as session:
+            session.ensure_logged_in()
+            ok = session.update_profile(profile)
+        print("Profile update done." if ok else "Profile update incomplete — check /tmp/profile_edit.png")
+        return
 
     keywords = [k.strip() for k in args.keywords.split(",")] if args.keywords else TARGET_KEYWORDS
 

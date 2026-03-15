@@ -93,6 +93,20 @@ class LancersSession:
         if "login" in self.page.url:
             raise RuntimeError("Login failed — check your LANCERS_EMAIL and LANCERS_PASSWORD in .env")
 
+        # Handle 2FA / email verification code
+        if "verify_code" in self.page.url:
+            if self.headless:
+                raise RuntimeError(
+                    "Lancers is asking for an email verification code.\n"
+                    "Run once with --headful to complete 2FA manually:\n"
+                    "  python3 browser.py --setup\n"
+                    "After that, the session will be saved and used automatically."
+                )
+            print("  Email verification required — check your email and enter the code in the browser.")
+            # Wait up to 3 minutes for the user to complete verification
+            self.page.wait_for_url(f"{BASE_URL}/dashboard", timeout=180000)
+            print("  Verification complete.")
+
         print("  Logged in successfully.")
         return True
 
@@ -100,6 +114,62 @@ class LancersSession:
         """Check session validity, login if needed."""
         if not self.is_logged_in():
             self.login()
+
+    def update_profile(self, profile: dict) -> bool:
+        """
+        Update Lancers profile (bio, tagline, hourly rate) from profile dict.
+        Returns True on success.
+        """
+        self.ensure_logged_in()
+        PROFILE_URL = f"{BASE_URL}/mypage/profile"
+
+        print(f"  Opening profile edit page...")
+        self.page.goto(PROFILE_URL, wait_until="domcontentloaded", timeout=20000)
+
+        # 一言PR / subtitle tagline
+        subtitle = profile.get("strengths", "")
+        sub_el = self.page.query_selector('input[name="data[UserProfile][sub_title]"]')
+        if sub_el:
+            sub_el.fill(subtitle[:100])  # Lancers caps at ~100 chars
+            print("  Filled 一言PR (subtitle).")
+
+        # 自己PR / description
+        note = profile.get("note", "")
+        desc_el = self.page.query_selector('textarea[name="data[UserProfile][description]"]')
+        if desc_el:
+            desc_el.fill(note)
+            print("  Filled 自己PR (description).")
+
+        # Hourly rate
+        rate = profile.get("hourly_rate")
+        if rate:
+            rate_el = self.page.query_selector('input[name="data[UserProfile][timecharge_rate]"]')
+            if rate_el:
+                rate_el.fill(str(rate))
+                print(f"  Filled hourly rate: ¥{rate}")
+
+        # Save
+        save_btn = self.page.query_selector('button[type="submit"]:has-text("保存")')
+        if not save_btn:
+            save_btn = self.page.query_selector('button[type="submit"], input[type="submit"]')
+
+        if save_btn:
+            save_btn.click()
+            self.page.wait_for_load_state("domcontentloaded", timeout=10000)
+            print("  Profile saved.")
+        else:
+            print("  Could not find save button.")
+            return False
+
+        # --- Update Skills tab ---
+        print("  Navigating to skills tab...")
+        self.page.goto(f"{BASE_URL}/skill", wait_until="domcontentloaded", timeout=20000)
+        self.page.screenshot(path="/tmp/skills_page.png")
+        print("  Skills page screenshot saved to /tmp/skills_page.png")
+        print("  Note: Skill tags require individual search + click on Lancers.")
+        print("  Please add skills manually from lancers_profile_text.md")
+
+        return True
 
     def get_html(self, url: str) -> str:
         """Navigate to URL and return page HTML."""

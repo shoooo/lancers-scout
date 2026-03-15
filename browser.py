@@ -77,8 +77,8 @@ class LancersSession:
         self._playwright.stop()
 
     def is_logged_in(self) -> bool:
-        self.page.goto(f"{BASE_URL}/dashboard", wait_until="domcontentloaded", timeout=15000)
-        return "/dashboard" in self.page.url and "login" not in self.page.url
+        self.page.goto(f"{BASE_URL}/mypage", wait_until="domcontentloaded", timeout=15000)
+        return "login" not in self.page.url and "verify_code" not in self.page.url
 
     def login(self) -> bool:
         email, password = _load_env_credentials()
@@ -103,8 +103,12 @@ class LancersSession:
                     "After that, the session will be saved and used automatically."
                 )
             print("  Email verification required — check your email and enter the code in the browser.")
-            # Wait up to 3 minutes for the user to complete verification
-            self.page.wait_for_url(f"{BASE_URL}/dashboard", timeout=180000)
+            # Wait up to 3 minutes for user to complete verification
+            # Lancers redirects to /mypage or /dashboard after success
+            self.page.wait_for_function(
+                "() => !window.location.pathname.includes('verify_code') && !window.location.pathname.includes('login')",
+                timeout=180000,
+            )
             print("  Verification complete.")
 
         print("  Logged in successfully.")

@@ -115,11 +115,7 @@ def _get(url: str, params: dict = None) -> Optional[BeautifulSoup]:
 def _parse_card(card, keyword: str) -> Optional[Project]:
     """Parse a project card element into a Project."""
     # Title + URL
-    title_el = (
-        card.select_one(".p-work-card__title a")
-        or card.select_one(".p-search-job__title a")
-        or card.select_one('a[href*="/work/detail/"]')
-    )
+    title_el = card.select_one("a.p-search-job-media__title, a.c-media__title, a[href*='/work/detail/']")
     if not title_el:
         return None
 
@@ -128,38 +124,22 @@ def _parse_card(card, keyword: str) -> Optional[Project]:
     url = href if href.startswith("http") else BASE_URL + href
 
     # Budget
-    budget_el = (
-        card.select_one(".p-work-card__budget")
-        or card.select_one('[class*="budget"]')
-        or card.select_one('[class*="price"]')
-        or card.select_one('[class*="reward"]')
-    )
-    budget = budget_el.get_text(strip=True) if budget_el else "不明"
+    budget_el = card.select_one(".p-search-job-media__price")
+    budget = budget_el.get_text(" ", strip=True) if budget_el else "不明"
 
     # Category
-    cat_el = (
-        card.select_one(".p-work-card__category a")
-        or card.select_one('[class*="category"] a')
-    )
+    cat_el = card.select_one("a.p-search-job__division-link")
     category = cat_el.get_text(strip=True) if cat_el else "不明"
 
-    # Short description
-    desc_el = (
-        card.select_one(".p-work-card__description")
-        or card.select_one('[class*="description"]')
-        or card.select_one('[class*="body"]')
-    )
-    description = desc_el.get_text(strip=True) if desc_el else ""
+    # Short description (last .c-media__description block)
+    desc_els = card.select("div.c-media__description")
+    description = desc_els[-1].get_text(strip=True) if desc_els else ""
 
-    # Proposal count
-    proposal_el = (
-        card.select_one('[class*="proposal"]')
-        or card.select_one('[class*="entry"]')
-    )
-    proposal_count = proposal_el.get_text(strip=True) if proposal_el else "不明"
+    # Proposal count (not always shown in list view)
+    proposal_count = "提案非公開"
 
     # NEW badge
-    is_new = bool(card.select_one('[class*="new"]'))
+    is_new = bool(card.select_one('[class*="new"], [class*="New"]'))
 
     return Project(
         title=title,
@@ -210,16 +190,7 @@ def scrape_keyword(keyword: str, pages: int = 2) -> list[Project]:
         if not soup:
             continue
 
-        cards = soup.select(".p-work-card, .p-search-job__item, [class*='work-card']")
-
-        if not cards:
-            # Fallback: group by parent of /work/detail/ links
-            parents_seen: set[int] = set()
-            for a in soup.select('a[href*="/work/detail/"]'):
-                parent = a.find_parent("li") or a.find_parent("div")
-                if parent and id(parent) not in parents_seen:
-                    parents_seen.add(id(parent))
-                    cards.append(parent)
+        cards = soup.select("div.p-search-job-media")
 
         for card in cards:
             proj = _parse_card(card, keyword)

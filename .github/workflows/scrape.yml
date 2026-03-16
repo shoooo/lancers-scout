@@ -28,6 +28,7 @@ jobs:
       - name: Run scraper and analyzer
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          USE_PLAYWRIGHT: "1"
         run: |
           python main.py \
             --pages 2 \

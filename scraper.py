@@ -1,8 +1,10 @@
 """
 Lancers project scraper.
 Scrapes project listings from lancers.jp for given keywords.
+Uses Playwright when USE_PLAYWRIGHT=1 (required in CI to avoid bot detection).
 """
 
+import os
 import time
 import random
 import requests
@@ -12,6 +14,8 @@ from typing import Optional
 
 BASE_URL = "https://www.lancers.jp"
 SEARCH_URL = f"{BASE_URL}/work/search"
+
+USE_PLAYWRIGHT = os.environ.get("USE_PLAYWRIGHT", "0") == "1"
 
 HEADERS = {
     "User-Agent": (
@@ -23,6 +27,35 @@ HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Referer": "https://www.lancers.jp/",
 }
+
+_playwright_browser = None
+
+def _get_playwright_browser():
+    global _playwright_browser
+    if _playwright_browser is None:
+        from playwright.sync_api import sync_playwright
+        _pw = sync_playwright().start()
+        _playwright_browser = _pw.chromium.launch(headless=True)
+    return _playwright_browser
+
+
+def _fetch_html(url: str) -> Optional[str]:
+    """Fetch page HTML via Playwright (headless browser)."""
+    time.sleep(random.uniform(1.5, 2.5))
+    try:
+        browser = _get_playwright_browser()
+        ctx = browser.new_context(
+            user_agent=HEADERS["User-Agent"],
+            locale="ja-JP",
+        )
+        page = ctx.new_page()
+        page.goto(url, wait_until="domcontentloaded", timeout=20000)
+        html = page.content()
+        ctx.close()
+        return html
+    except Exception as e:
+        print(f"  [browser fetch error] {url}: {e}")
+        return None
 
 # Search keywords targeting ecommerce + web building
 TARGET_KEYWORDS = [
@@ -57,10 +90,20 @@ class Project:
 
 
 def _get(url: str, params: dict = None) -> Optional[BeautifulSoup]:
-    """Fetch a page with polite delay and return parsed soup."""
+    """Fetch a page and return parsed soup. Uses Playwright if USE_PLAYWRIGHT=1."""
+    if params:
+        from urllib.parse import urlencode
+        url = f"{url}?{urlencode(params)}"
+
+    if USE_PLAYWRIGHT:
+        html = _fetch_html(url)
+        if not html:
+            return None
+        return BeautifulSoup(html, "html.parser")
+
     time.sleep(random.uniform(1.5, 3.0))
     try:
-        resp = requests.get(url, headers=HEADERS, params=params, timeout=15)
+        resp = requests.get(url, headers=HEADERS, timeout=15)
         resp.raise_for_status()
         resp.encoding = "utf-8"
         return BeautifulSoup(resp.text, "html.parser")
@@ -160,7 +203,7 @@ def scrape_keyword(keyword: str, pages: int = 2) -> list[Project]:
             "keyword": keyword,
             "work_type[]": "project",
             "open": "1",
-            "page": page,
+            "page": str(page),
         }
         print(f"  Fetching '{keyword}' page {page}...")
         soup = _get(SEARCH_URL, params=params)

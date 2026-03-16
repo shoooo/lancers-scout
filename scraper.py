@@ -35,7 +35,11 @@ def _get_playwright_browser():
     if _playwright_browser is None:
         from playwright.sync_api import sync_playwright
         _pw = sync_playwright().start()
-        _playwright_browser = _pw.chromium.launch(headless=True)
+        _playwright_browser = _pw.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage"],
+        )
+        print(f"  [playwright] Browser launched: {_playwright_browser.version}")
     return _playwright_browser
 
 
@@ -49,7 +53,9 @@ def _fetch_html(url: str) -> Optional[str]:
             locale="ja-JP",
         )
         page = ctx.new_page()
-        page.goto(url, wait_until="domcontentloaded", timeout=20000)
+        resp = page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        if resp and resp.status >= 400:
+            print(f"  [browser] HTTP {resp.status} for {url}")
         html = page.content()
         ctx.close()
         return html
@@ -188,9 +194,14 @@ def scrape_keyword(keyword: str, pages: int = 2) -> list[Project]:
         print(f"  Fetching '{keyword}' page {page}...")
         soup = _get(SEARCH_URL, params=params)
         if not soup:
+            print(f"  [warn] No soup returned for '{keyword}' page {page}")
             continue
 
         cards = soup.select("div.p-search-job-media")
+        if not cards:
+            # Debug: check if page has any content
+            detail_links = soup.select('a[href*="/work/detail/"]')
+            print(f"  [debug] 0 cards, {len(detail_links)} detail links, title={soup.title.string[:50] if soup.title else 'none'}")
 
         for card in cards:
             proj = _parse_card(card, keyword)

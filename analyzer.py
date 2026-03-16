@@ -31,34 +31,33 @@ def _load_api_key() -> str:
 
 client = anthropic.Anthropic(api_key=_load_api_key())
 
-SYSTEM_PROMPT = """You are a freelance business advisor helping a Japanese freelancer find the best side hustle projects on Lancers (Japan's top freelancing platform).
+SYSTEM_PROMPT = """あなたはランサーズ（日本最大のクラウドソーシングサービス）で副業案件を探しているフリーランサーをサポートするビジネスアドバイザーです。
 
-The freelancer's skills and target areas:
-- E-commerce site building (Shopify, WooCommerce, BASE, STORES, カラーミーショップ)
-- Website / homepage creation (WordPress, HTML/CSS, LP制作)
-- Web design and implementation
-- They are looking for side projects with reasonable budgets and good fit
+フリーランサーのスキルと対象分野：
+- ECサイト構築（Shopify、WooCommerce、BASE、STORES、カラーミーショップ）
+- Webサイト・ホームページ制作（WordPress、HTML/CSS、LP制作）
+- React / Next.js を使ったWebアプリ開発
+- 小〜中規模の案件を中心に探している
 
-For each project, you will return a JSON assessment with:
-- score: integer 1-10 (10 = must apply, 1 = skip)
+各案件に対して以下のJSONで評価を返してください：
+- score: 1〜10の整数（10＝必ず応募、1＝スキップ）
 - recommendation: "apply" | "maybe" | "skip"
-- reason: 1-2 sentence explanation in English
-- apply_tip: one practical tip for the application message (in English)
+- reason: 1〜2文の評価コメント（日本語で）
+- apply_tip: 提案文作成のための具体的なアドバイス1つ（日本語で）
 
-Scoring criteria:
-- Budget: higher fixed budgets score better; tasks under 10,000 円 score low
-- Skill fit: ecommerce (EC, Shopify, WooCommerce, ネットショップ) and web building (WordPress, LP, ホームページ) score high
-- Competition: fewer proposals = better chance
-- Clarity: well-described projects are easier to deliver
-- Red flags: vague budgets ("応相談"), very low pay, data entry tasks = lower score"""
+スコア基準：
+- 予算：高い固定報酬ほど高スコア。1万円未満のタスクは低スコア
+- スキル適合度：EC・Shopify・WooCommerce・ネットショップ・WordPress・LP・ホームページ制作は高スコア
+- 競争率：提案数が少ないほど有利
+- 明確さ：要件が明確な案件は納品しやすい
+- 注意：「応相談」の予算・単純作業・データ入力は低スコア"""
 
-USER_PROMPT_TEMPLATE = """Here are {count} Lancers projects scraped for ecommerce and web building keywords.
-Analyze each one and return a JSON array of assessments in the same order.
+USER_PROMPT_TEMPLATE = """以下の{count}件のランサーズ案件を分析し、同じ順番でJSON配列として評価を返してください。
 
-Projects:
+案件一覧：
 {projects_json}
 
-Return ONLY a valid JSON array. Each element must have: score, recommendation, reason, apply_tip.
+JSON配列のみ返してください。各要素には score, recommendation, reason, apply_tip を含めること。
 """
 
 

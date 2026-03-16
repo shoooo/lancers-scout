@@ -367,6 +367,8 @@
 
             <div class="reason">${esc(p.reason)}</div>
 
+            ${p.apply_tip ? `<div class="reason" style="border-left-color:#818cf8;background:#eef2ff;color:#3730a3">💡 ${esc(p.apply_tip)}</div>` : ""}
+
             ${hasProposal ? `
               <div class="proposal-toggle" onclick="toggle(this)">
                 <span class="arrow">▶</span> 提案文を見る

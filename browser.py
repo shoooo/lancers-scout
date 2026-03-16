@@ -122,58 +122,62 @@ class LancersSession:
     def update_profile(self, profile: dict) -> bool:
         """
         Update Lancers profile (bio, tagline, hourly rate) from profile dict.
+        Uses Playwright locators directly so CSRF tokens are handled automatically.
         Returns True on success.
         """
         self.ensure_logged_in()
         PROFILE_URL = f"{BASE_URL}/mypage/profile"
 
-        print(f"  Opening profile edit page...")
+        print("  Opening profile edit page...")
         self.page.goto(PROFILE_URL, wait_until="domcontentloaded", timeout=20000)
 
-        # 一言PR / subtitle tagline
-        subtitle = profile.get("strengths", "")
-        sub_el = self.page.query_selector('input[name="data[UserProfile][sub_title]"]')
-        if sub_el:
-            sub_el.fill(subtitle[:100])  # Lancers caps at ~100 chars
-            print("  Filled 一言PR (subtitle).")
+        # 一言PR / subtitle (Lancers limit: 50 chars)
+        subtitle = profile.get("tagline", profile.get("strengths", ""))[:50]
+        self.page.locator('input[name="data[UserProfile][sub_title]"]').fill(subtitle)
+        print(f"  Filled 一言PR: {subtitle}")
 
         # 自己PR / description
         note = profile.get("note", "")
-        desc_el = self.page.query_selector('textarea[name="data[UserProfile][description]"]')
-        if desc_el:
-            desc_el.fill(note)
-            print("  Filled 自己PR (description).")
+        self.page.locator('textarea[name="data[UserProfile][description]"]').fill(note)
+        print("  Filled 自己PR.")
 
         # Hourly rate
         rate = profile.get("hourly_rate")
         if rate:
-            rate_el = self.page.query_selector('input[name="data[UserProfile][timecharge_rate]"]')
-            if rate_el:
-                rate_el.fill(str(rate))
-                print(f"  Filled hourly rate: ¥{rate}")
+            self.page.locator('input[name="data[UserProfile][timecharge_rate]"]').fill(str(rate))
+            print(f"  Filled hourly rate: ¥{rate}")
 
-        # Save
-        save_btn = self.page.query_selector('button[type="submit"]:has-text("保存")')
-        if not save_btn:
-            save_btn = self.page.query_selector('button[type="submit"], input[type="submit"]')
+        # Click 保存する and wait for redirect back to same page (success)
+        url_before = self.page.url
+        self.page.locator('input[value="保存する"], button:has-text("保存する"), button[type="submit"]').first.click()
+        self.page.wait_for_load_state("domcontentloaded", timeout=15000)
 
-        if save_btn:
-            save_btn.click()
-            self.page.wait_for_load_state("domcontentloaded", timeout=10000)
-            print("  Profile saved.")
-        else:
-            print("  Could not find save button.")
-            return False
+        # Re-read the saved rate from the reloaded form to confirm
+        import time; time.sleep(1)
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(self.page.content(), "html.parser")
+        saved_rate_el = soup.select_one('[name="data[UserProfile][timecharge_rate]"]')
+        saved_rate_val = saved_rate_el.get("value", "") if saved_rate_el else ""
 
-        # --- Update Skills tab ---
-        print("  Navigating to skills tab...")
-        self.page.goto(f"{BASE_URL}/skill", wait_until="domcontentloaded", timeout=20000)
-        self.page.screenshot(path="/tmp/skills_page.png")
-        print("  Skills page screenshot saved to /tmp/skills_page.png")
-        print("  Note: Skill tags require individual search + click on Lancers.")
-        print("  Please add skills manually from lancers_profile_text.md")
+        if saved_rate_val == str(rate):
+            print("  Save confirmed.")
+            return True
 
-        return True
+        # Save may have failed due to CakePHP token — try navigating away and back
+        print("  Re-checking after page reload...")
+        self.page.goto(PROFILE_URL, wait_until="domcontentloaded", timeout=20000)
+        soup2 = BeautifulSoup(self.page.content(), "html.parser")
+        saved_rate_el2 = soup2.select_one('[name="data[UserProfile][timecharge_rate]"]')
+        saved_val2 = saved_rate_el2.get("value", "") if saved_rate_el2 else ""
+
+        if saved_val2 == str(rate):
+            print("  Save confirmed.")
+            return True
+
+        print(f"  Save failed — rate still shows ¥{saved_val2}.")
+        print("  CakePHP security token is blocking automated saves.")
+        print("  Please update manually at: lancers.jp/mypage/profile")
+        return False
 
     def get_html(self, url: str) -> str:
         """Navigate to URL and return page HTML."""

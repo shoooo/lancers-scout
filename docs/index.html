@@ -8,123 +8,137 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f7fa;
-      color: #1a1a2e;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
+      background: #f0f2f5;
+      color: #111827;
       min-height: 100vh;
+      font-size: 15px;
     }
 
     /* HEADER */
     header {
       background: #fff;
-      border-bottom: 1px solid #e2e8f0;
-      padding: 16px 28px;
+      border-bottom: 2px solid #e5e7eb;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
       flex-wrap: wrap;
       position: sticky;
       top: 0;
       z-index: 10;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     }
 
     header h1 {
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       font-weight: 800;
-      color: #1a1a2e;
-      letter-spacing: -0.02em;
+      color: #111827;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
     }
-
     header h1 span { color: #4f46e5; }
 
-    #updated {
-      font-size: 0.72rem;
-      color: #94a3b8;
+    .header-right {
       margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
+
+    #updated {
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+
+    .refresh-btn {
+      font-size: 0.78rem;
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1.5px solid #d1d5db;
+      background: #fff;
+      color: #374151;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .refresh-btn:hover { border-color: #4f46e5; color: #4f46e5; }
 
     .stats { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .stat {
-      font-size: 0.75rem;
+      font-size: 0.82rem;
       font-weight: 700;
-      padding: 4px 14px;
+      padding: 5px 14px;
       border-radius: 999px;
     }
     .stat.apply { background: #dcfce7; color: #15803d; }
-    .stat.maybe { background: #fef9c3; color: #a16207; }
+    .stat.maybe { background: #fef9c3; color: #92400e; }
     .stat.skip  { background: #fee2e2; color: #b91c1c; }
 
-    /* FILTERS */
+    /* TOOLBAR */
     .toolbar {
-      padding: 16px 28px;
+      padding: 14px 24px;
       display: flex;
       gap: 8px;
       align-items: center;
       flex-wrap: wrap;
+      background: #f0f2f5;
     }
 
     .filter-btn {
-      padding: 7px 18px;
+      padding: 8px 20px;
       border-radius: 999px;
-      border: 1.5px solid #e2e8f0;
+      border: 2px solid #d1d5db;
       background: #fff;
-      color: #64748b;
+      color: #374151;
       cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 500;
+      font-size: 0.85rem;
+      font-weight: 600;
       transition: all 0.12s;
     }
     .filter-btn:hover { border-color: #4f46e5; color: #4f46e5; }
-    .filter-btn.active {
-      background: #4f46e5;
-      border-color: #4f46e5;
-      color: #fff;
-      font-weight: 700;
-    }
+    .filter-btn.active { background: #4f46e5; border-color: #4f46e5; color: #fff; }
 
     .count-label {
-      font-size: 0.78rem;
-      color: #94a3b8;
+      font-size: 0.82rem;
+      color: #6b7280;
       margin-left: auto;
+      font-weight: 500;
     }
 
     /* GRID */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
       gap: 16px;
-      padding: 0 28px 48px;
+      padding: 4px 24px 48px;
     }
 
     /* CARD */
     .card {
       background: #fff;
-      border-radius: 14px;
-      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       transition: box-shadow 0.15s, transform 0.15s;
     }
     .card:hover {
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
       transform: translateY(-2px);
     }
 
-    .card-stripe {
-      height: 4px;
-    }
+    .card-stripe { height: 5px; }
     .apply .card-stripe { background: #22c55e; }
-    .maybe .card-stripe { background: #eab308; }
+    .maybe .card-stripe { background: #f59e0b; }
     .skip  .card-stripe { background: #ef4444; }
 
     .card-body {
-      padding: 18px 20px;
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 11px;
       flex: 1;
     }
 
@@ -136,65 +150,65 @@
 
     .score-badge {
       flex-shrink: 0;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 800;
       padding: 3px 10px;
       border-radius: 999px;
       margin-top: 2px;
     }
     .apply .score-badge { background: #dcfce7; color: #15803d; }
-    .maybe .score-badge { background: #fef9c3; color: #a16207; }
+    .maybe .score-badge { background: #fef9c3; color: #92400e; }
     .skip  .score-badge { background: #fee2e2; color: #b91c1c; }
 
     .card-title {
-      font-size: 0.88rem;
+      font-size: 0.95rem;
       font-weight: 700;
       line-height: 1.45;
-      color: #1a1a2e;
+      color: #111827;
     }
 
     .badge-new {
       display: inline-block;
-      font-size: 0.62rem;
+      font-size: 0.65rem;
       font-weight: 800;
       background: #4f46e5;
       color: #fff;
       padding: 1px 7px;
       border-radius: 999px;
-      margin-right: 4px;
+      margin-right: 5px;
       vertical-align: middle;
     }
 
-    /* META TABLE */
+    /* META */
     .meta {
       display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 4px 12px;
-      font-size: 0.76rem;
+      grid-template-columns: 72px 1fr;
+      gap: 5px 10px;
+      font-size: 0.82rem;
     }
-    .meta-label { color: #94a3b8; font-weight: 500; }
-    .meta-value { color: #475569; font-weight: 500; }
+    .meta-label { color: #9ca3af; font-weight: 500; }
+    .meta-value { color: #374151; font-weight: 600; }
 
     /* REASON */
     .reason {
-      font-size: 0.77rem;
-      color: #475569;
-      line-height: 1.55;
-      background: #f8fafc;
+      font-size: 0.82rem;
+      color: #4b5563;
+      line-height: 1.6;
+      background: #f9fafb;
       border-radius: 8px;
       padding: 10px 12px;
-      border-left: 3px solid #e2e8f0;
+      border-left: 4px solid #e5e7eb;
     }
     .apply .reason { border-left-color: #22c55e; }
-    .maybe .reason { border-left-color: #eab308; }
+    .maybe .reason { border-left-color: #f59e0b; }
     .skip  .reason { border-left-color: #ef4444; }
 
     /* PROPOSAL */
     .proposal-toggle {
-      font-size: 0.76rem;
+      font-size: 0.82rem;
       color: #4f46e5;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       display: flex;
       align-items: center;
       gap: 5px;
@@ -202,20 +216,17 @@
     }
     .proposal-toggle:hover { color: #3730a3; }
 
-    .proposal-box {
-      display: none;
-      position: relative;
-    }
+    .proposal-box { display: none; position: relative; }
     .proposal-box.open { display: block; }
 
     .proposal-text {
-      font-size: 0.78rem;
-      color: #334155;
-      background: #f8fafc;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 14px 14px 36px;
-      line-height: 1.75;
+      font-size: 0.84rem;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 14px 14px 42px;
+      line-height: 1.8;
       white-space: pre-wrap;
     }
 
@@ -223,14 +234,14 @@
       position: absolute;
       bottom: 10px;
       right: 10px;
-      font-size: 0.7rem;
-      padding: 4px 12px;
+      font-size: 0.75rem;
+      padding: 5px 14px;
       background: #4f46e5;
       border: none;
       border-radius: 6px;
       color: #fff;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       transition: background 0.12s;
     }
     .copy-btn:hover { background: #3730a3; }
@@ -243,20 +254,20 @@
       background: #4f46e5;
       color: #fff;
       text-decoration: none;
-      padding: 10px;
-      font-size: 0.82rem;
+      padding: 11px;
+      font-size: 0.88rem;
       font-weight: 700;
       transition: background 0.12s;
+      letter-spacing: 0.01em;
     }
     .apply-btn:hover { background: #3730a3; }
 
-    /* EMPTY / LOADING */
     .message {
       grid-column: 1 / -1;
       text-align: center;
-      color: #94a3b8;
+      color: #9ca3af;
       padding: 80px 24px;
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
   </style>
 </head>
@@ -265,14 +276,17 @@
 <header>
   <h1>Lancers <span>Scout</span></h1>
   <div class="stats" id="stats"></div>
-  <div id="updated"></div>
+  <div class="header-right">
+    <span id="updated"></span>
+    <button class="refresh-btn" onclick="load()">再読み込み</button>
+  </div>
 </header>
 
 <div class="toolbar">
   <button class="filter-btn active" data-filter="all">すべて</button>
-  <button class="filter-btn" data-filter="apply">Apply</button>
-  <button class="filter-btn" data-filter="maybe">Maybe</button>
-  <button class="filter-btn" data-filter="skip">Skip</button>
+  <button class="filter-btn" data-filter="apply">応募推奨</button>
+  <button class="filter-btn" data-filter="maybe">検討</button>
+  <button class="filter-btn" data-filter="skip">スキップ</button>
   <span class="count-label" id="count-label"></span>
 </div>
 
@@ -285,6 +299,7 @@
   let filter = "all";
 
   async function load() {
+    document.getElementById("grid").innerHTML = '<div class="message">読み込み中...</div>';
     try {
       const res = await fetch("results.json?t=" + Date.now());
       all = await res.json();
@@ -292,12 +307,15 @@
       renderStats();
       fetch("results.json", { method: "HEAD" }).then(r => {
         const lm = r.headers.get("last-modified");
-        if (lm) document.getElementById("updated").textContent =
-          "更新: " + new Date(lm).toLocaleString("ja-JP");
+        if (lm) {
+          const d = new Date(lm);
+          document.getElementById("updated").textContent =
+            "最終更新: " + d.toLocaleDateString("ja-JP") + " " + d.toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"});
+        }
       }).catch(() => {});
     } catch {
       document.getElementById("grid").innerHTML =
-        '<div class="message">results.json が見つかりません。先にスクレイパーを実行してください。</div>';
+        '<div class="message">results.json が見つかりません。<br>スクレイパーを実行してください。</div>';
     }
   }
 
@@ -306,14 +324,14 @@
     const maybe = all.filter(p => p.recommendation === "maybe").length;
     const skip  = all.filter(p => p.recommendation === "skip").length;
     document.getElementById("stats").innerHTML =
-      `<span class="stat apply">Apply ${apply}</span>` +
-      `<span class="stat maybe">Maybe ${maybe}</span>` +
-      `<span class="stat skip">Skip ${skip}</span>`;
+      `<span class="stat apply">応募推奨 ${apply}件</span>` +
+      `<span class="stat maybe">検討 ${maybe}件</span>` +
+      `<span class="stat skip">スキップ ${skip}件</span>`;
   }
 
   function render() {
     const filtered = filter === "all" ? all : all.filter(p => p.recommendation === filter);
-    document.getElementById("count-label").textContent = `${filtered.length} 件`;
+    document.getElementById("count-label").textContent = filtered.length + "件表示中";
     const grid = document.getElementById("grid");
 
     if (!filtered.length) {
@@ -321,8 +339,9 @@
       return;
     }
 
-    grid.innerHTML = filtered.map((p, i) => {
+    grid.innerHTML = filtered.map(p => {
       const hasProposal = p.proposal && p.proposal.trim();
+      const recLabel = { apply: "応募推奨", maybe: "検討", skip: "スキップ" }[p.recommendation] || p.recommendation;
       return `
         <div class="card ${p.recommendation}">
           <div class="card-stripe"></div>
@@ -336,10 +355,14 @@
             </div>
 
             <div class="meta">
-              <span class="meta-label">予算</span><span class="meta-value">${esc(p.budget)}</span>
-              <span class="meta-label">カテゴリ</span><span class="meta-value">${esc(p.category)}</span>
-              <span class="meta-label">提案数</span><span class="meta-value">${esc(p.proposal_count)}</span>
-              <span class="meta-label">キーワード</span><span class="meta-value">${esc(p.keyword)}</span>
+              <span class="meta-label">予算</span>
+              <span class="meta-value">${esc(p.budget)}</span>
+              <span class="meta-label">カテゴリ</span>
+              <span class="meta-value">${esc(p.category)}</span>
+              <span class="meta-label">提案数</span>
+              <span class="meta-value">${esc(p.proposal_count)}</span>
+              <span class="meta-label">キーワード</span>
+              <span class="meta-value">${esc(p.keyword)}</span>
             </div>
 
             <div class="reason">${esc(p.reason)}</div>

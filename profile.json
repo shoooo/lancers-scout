@@ -1,7 +1,19 @@
 {
   "name": "Vibin合同会社",
-  "experience_years": 4,
+  "experience_years": 7,
   "hourly_rate": 2000,
+  "tagline": "ECサイト・Web制作を法人で対応。React/Shopify/WP対応",
+  "skill_years": {
+    "HTML / CSS": 7,
+    "JavaScript": 7,
+    "Node.js": 5,
+    "React / Next.js": 4,
+    "TypeScript": 4,
+    "WordPress": 4,
+    "Shopify": 3,
+    "Tailwind CSS": 3,
+    "英語翻訳": 9
+  },
   "skills": [
     "Shopify",
     "WordPress",
@@ -28,5 +40,5 @@
   "availability": "平日夜・週末中心（週20〜25時間程度）。AI活用により対応スピード向上。",
   "tools": ["React", "Next.js", "Tailwind CSS", "Supabase", "AWS", "Figma", "Shopify", "WordPress"],
   "languages": ["日本語（ネイティブ）", "English (bilingual — 米国在住3年・IB取得)"],
-  "note": "法人として活動。ECサイト・ホームページ・LP制作を中心に受け付けています。ReactやNext.jsを使ったモダンなWeb開発から、ShopifyやWordPressを使ったCMS構築まで幅広く対応可能です。AI機能の組み込みにも対応しており、単なるサイト制作以上の価値を提供できます。小〜中規模案件を得意としており、スピーディな納品を心がけています。"
+  "note": "14歳からコーディングを始め、7年以上のWeb開発経験を持つ法人です。ECサイト・ホームページ・LP制作を中心に、React / Next.js / Shopify / WordPressを使ったモダンなWeb開発に対応しています。\n\n【得意分野】\n・ShopifyやWordPressを使ったECサイト・CMS構築\n・React / Next.jsを使ったフルスクラッチWeb開発\n・LP制作・コーポレートサイト制作\n・AI機能の組み込み（チャットボット・自動化など）\n\n【実績】\n・国内eギフトサービスのLP・コーポレートサイト制作\n・自動車部品販売B2B企業のコーポレートサイト制作\n・EC向け運用データ可視化ダッシュボード開発\n・フィジカル商品販売ECストアのWebアプリ開発\n\n日英バイリンガル対応可。スピーディな納品と丁寧なコミュニケーションを心がけています。"
 }

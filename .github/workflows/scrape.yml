@@ -1,4 +1,4 @@
-name: Lancers Scout — Daily Scrape
+name: Lancers Scout Daily Scrape
 
 on:
   schedule:
@@ -10,7 +10,7 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     permissions:
-      contents: write      # needed to commit results.json back to repo
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -23,9 +23,9 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt && playwright install chromium --with-deps
+        run: pip install -r requirements.txt && python -m playwright install chromium --with-deps
 
-      - name: Run scraper, analyze, and auto-apply
+      - name: Run scraper and analyzer
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LANCERS_EMAIL: ${{ secrets.LANCERS_EMAIL }}
@@ -40,10 +40,14 @@ jobs:
             --output results.json
 
       - name: Post to Slack
-        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python notify_slack.py results.json
+        run: |
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            python notify_slack.py results.json
+          else
+            echo "No Slack webhook configured, skipping."
+          fi
 
       - name: Copy results to docs
         run: cp results.json docs/results.json

@@ -114,17 +114,39 @@ def main() -> None:
         print("No projects found. Check your internet connection or try different keywords.")
         sys.exit(1)
 
-    # --- DETAIL FETCH (optional) ---
-    if args.detail:
-        print(f"\nFetching detail pages for {len(projects)} projects...")
-        for i, p in enumerate(projects, 1):
-            print(f"  [{i}/{len(projects)}] {p.title[:50]}...")
-            projects[i - 1] = fetch_project_detail(p)
-
-    # --- ANALYZE ---
-    print("\nAnalyzing projects with Claude...")
+    # --- ANALYZE (first pass, without details) ---
+    print("\nAnalyzing projects with Claude (first pass)...")
     assessments = analyze_projects(projects)
     ranked = merge_and_rank(projects, assessments)
+
+    # --- DETAIL FETCH: top candidates only ---
+    if args.detail:
+        top_candidates = [r for r in ranked if r["recommendation"] in ("apply", "maybe")][:20]
+        if top_candidates:
+            print(f"\nFetching detail pages for top {len(top_candidates)} candidates...")
+            # Build url→project map for update
+            url_to_proj = {p.url: p for p in projects}
+            for i, r in enumerate(top_candidates, 1):
+                proj = url_to_proj.get(r["url"])
+                if proj:
+                    print(f"  [{i}/{len(top_candidates)}] {r['title'][:50]}...")
+                    updated = fetch_project_detail(proj)
+                    r["description"] = updated.full_description or updated.description
+            # Re-analyze only the enriched candidates
+            print("\nRe-analyzing top candidates with full descriptions...")
+            enriched_projects = [url_to_proj[r["url"]] for r in top_candidates if r["url"] in url_to_proj]
+            for proj in enriched_projects:
+                url_to_proj[proj.url] = proj
+            new_assessments = analyze_projects(enriched_projects)
+            url_to_assessment = {enriched_projects[i].url: new_assessments[i] for i in range(len(enriched_projects))}
+            for r in ranked:
+                if r["url"] in url_to_assessment:
+                    a = url_to_assessment[r["url"]]
+                    r.update({"score": a.get("score", r["score"]),
+                               "recommendation": a.get("recommendation", r["recommendation"]),
+                               "reason": a.get("reason", r["reason"]),
+                               "apply_tip": a.get("apply_tip", r["apply_tip"])})
+            ranked.sort(key=lambda x: x["score"], reverse=True)
 
     # --- FILTER ---
     if args.filter:

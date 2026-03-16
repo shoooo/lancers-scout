@@ -1,10 +1,7 @@
 name: Lancers Scout Daily Scrape
 
 on:
-  schedule:
-    - cron: "0 0 * * *"   # 9:00 AM JST
-    - cron: "0 9 * * *"   # 6:00 PM JST
-  workflow_dispatch:       # allow manual trigger from GitHub UI
+  workflow_dispatch:       # manual trigger only (scraping runs locally via launchd)
 
 jobs:
   scrape:
@@ -32,7 +29,6 @@ jobs:
         run: |
           python main.py \
             --pages 2 \
-            --detail \
             --propose \
             --propose-top 5 \
             --output results.json

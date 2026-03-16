@@ -73,13 +73,14 @@ TARGET_KEYWORDS = [
     "LP制作",
     "Webサイト制作",
     "WooCommerce",
-    "Webアプリ",
-    "React",
-    "Next.js",
     "コーポレートサイト",
-    "バナー制作",
     "サイト構築",
+    "React Next.js",
+    "Webアプリ 受託",
 ]
+
+# Max projects to carry forward to AI analysis
+MAX_PROJECTS = 120
 
 
 @dataclass
@@ -213,7 +214,7 @@ def scrape_keyword(keyword: str, pages: int = 2) -> list[Project]:
 
 
 def scrape_all(keywords: list[str] = None, pages_per_keyword: int = 2) -> list[Project]:
-    """Scrape all target keywords and return deduplicated projects."""
+    """Scrape all target keywords and return deduplicated projects (capped at MAX_PROJECTS)."""
     if keywords is None:
         keywords = TARGET_KEYWORDS
 
@@ -221,12 +222,17 @@ def scrape_all(keywords: list[str] = None, pages_per_keyword: int = 2) -> list[P
     seen_urls: set[str] = set()
 
     for kw in keywords:
+        if len(all_projects) >= MAX_PROJECTS:
+            print(f"  Reached {MAX_PROJECTS} project cap, stopping early.")
+            break
         results = scrape_keyword(kw, pages=pages_per_keyword)
+        added = 0
         for p in results:
             if p.url not in seen_urls:
                 seen_urls.add(p.url)
                 all_projects.append(p)
-        print(f"  → {len(results)} projects found for '{kw}'")
+                added += 1
+        print(f"  → {added} new projects for '{kw}' (total: {len(all_projects)})")
 
     print(f"\nTotal unique projects scraped: {len(all_projects)}")
     return all_projects

@@ -25,20 +25,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt && python -m playwright install chromium --with-deps
 
-      - name: Restore Lancers session
-        env:
-          LANCERS_SESSION: ${{ secrets.LANCERS_SESSION }}
-        run: |
-          if [ -n "$LANCERS_SESSION" ]; then
-            echo "$LANCERS_SESSION" | base64 -d > .session.json
-            echo "Session restored."
-          fi
-
       - name: Run scraper and analyzer
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LANCERS_EMAIL: ${{ secrets.LANCERS_EMAIL }}
-          LANCERS_PASSWORD: ${{ secrets.LANCERS_PASSWORD }}
         run: |
           python main.py \
             --pages 2 \

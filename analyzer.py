@@ -124,45 +124,59 @@ def analyze_projects(projects: list[Project], batch_size: int = 15) -> list[dict
     return all_assessments
 
 
-PROPOSAL_SYSTEM_PROMPT = """You are an expert Japanese freelance copywriter. Your job is to write a compelling 提案文 (proposal message) on Lancers for a freelancer applying to a project.
+PROPOSAL_SYSTEM_PROMPT = """あなたはランサーズで高い受注率を誇る、Web制作・EC構築の専門フリーランサーです。
+クライアントに刺さる提案文を書くプロです。
 
-Rules:
-- Write entirely in natural, polite Japanese (敬語)
-- Length: 250–400 characters (not too long, clients skim fast)
-- Structure: ① 挨拶 + 興味を持った理由 → ② 自分の関連実績・スキル → ③ 具体的な進め方・提案 → ④ 締め・お願い
-- Tailor the message specifically to this project — mention the client's goal or tech stack
-- Sound like a real human, not a template
-- Do NOT use bullet points or headers — write as flowing paragraphs
-- End with a polite call to action (ご検討よろしくお願いいたします etc.)
+【採用される提案文のルール】
+1. 冒頭でクライアントの「課題・要望」に直接反応する（自己紹介から始めない）
+2. 案件説明に書かれている具体的なキーワード・要件・技術スタックを必ず拾う
+3. 「自分ならこう進める」という具体的な進め方を1〜2文で示す
+4. 修正対応・レスポンス速度・納期遵守など、クライアントの不安を先回りして消す
+5. 実績は会社名を出さず「〜のような案件」「〜を担当してきた」と表現する
+6. 継続依頼への意欲を自然に示す
+7. 全体を自然な敬語の流れる文章で書く（箇条書き・見出し禁止）
+8. 長さ：500〜700字（短すぎず、読み飛ばされない長さ）
+9. 締めは「ぜひ一度ご相談ください」「お気軽にメッセージください」など柔らかく
 
-Return ONLY the proposal text, no JSON, no explanation."""
+【NG】
+- 「はじめまして」「○○と申します」から始める（テンプレ感が出る）
+- 自分のスキル羅列だけで終わる
+- 案件と無関係な実績のアピール
+- 「頑張ります」「誠実に対応します」などの抽象的な表現
 
-PROPOSAL_USER_TEMPLATE = """Write a proposal message for this Lancers project.
+提案文のテキストのみ返してください。JSONや説明文は不要です。"""
 
-Project:
-- Title: {title}
-- Budget: {budget}
-- Category: {category}
-- Description: {description}
+PROPOSAL_USER_TEMPLATE = """以下のランサーズ案件に対する提案文を書いてください。
 
-Freelancer profile:
-- Skills: {skills}
-- Past work examples: {past_work}
-- Strengths: {strengths}
-- Availability: {availability}
-- Note: {note}
+【案件情報】
+- タイトル: {title}
+- 予算: {budget}
+- カテゴリ: {category}
+- 案件詳細:
+{description}
 
-Write the 提案文 now:"""
+【フリーランサープロフィール】
+- スキル: {skills}
+- 過去の実績（社名非公開）: {past_work}
+- 強み: {strengths}
+- 稼働状況: {availability}
+- 補足: {note}
+
+※案件詳細に書かれた要件・技術スタック・課題を冒頭で具体的に拾い、
+「自分なら即対応できる」と伝わる提案文を書いてください。
+案件詳細が不明な場合でも、タイトルとカテゴリから想定される課題に触れてください。
+
+提案文:"""
 
 
 def generate_proposal(project: dict, profile: dict) -> str:
     """Generate a Japanese proposal message for a single project."""
-    description = project.get("description", "") or project.get("full_description", "")
+    description = project.get("full_description") or project.get("description", "")
     prompt = PROPOSAL_USER_TEMPLATE.format(
         title=project["title"],
         budget=project["budget"],
         category=project["category"],
-        description=description[:600],
+        description=description[:1000] if description else "（詳細情報なし）",
         skills=", ".join(profile.get("skills", [])),
         past_work="; ".join(profile.get("past_work", [])),
         strengths=profile.get("strengths", ""),
@@ -171,7 +185,7 @@ def generate_proposal(project: dict, profile: dict) -> str:
     )
     message = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=1024,
+        max_tokens=2048,
         system=PROPOSAL_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": prompt}],
     )

@@ -44,8 +44,6 @@ jobs:
             --pages 2 \
             --propose \
             --propose-top 5 \
-            --apply \
-            --yes \
             --output results.json
 
       - name: Post to Slack

@@ -34,6 +34,12 @@ TARGET_KEYWORDS = [
     "LP制作",
     "Webサイト制作",
     "WooCommerce",
+    "Webアプリ",
+    "React",
+    "Next.js",
+    "コーポレートサイト",
+    "バナー制作",
+    "サイト構築",
 ]
 
 

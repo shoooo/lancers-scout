@@ -87,7 +87,68 @@ def main() -> None:
                         help="Show browser window instead of running headless")
     parser.add_argument("--update-profile", action="store_true",
                         help="Update your Lancers profile from profile.json")
+    parser.add_argument("--review", action="store_true",
+                        help="Review proposals from results.json and submit approved ones")
+    parser.add_argument("--review-file", type=str, default="docs/results.json",
+                        help="JSON file to review (default: docs/results.json)")
     args = parser.parse_args()
+
+    # --- REVIEW & SUBMIT (standalone action) ---
+    if args.review:
+        import webbrowser
+        from browser import LancersSession
+
+        review_path = Path(args.review_file)
+        if not review_path.exists():
+            print(f"File not found: {review_path}")
+            sys.exit(1)
+
+        with open(review_path, encoding="utf-8") as f:
+            results = json.load(f)
+
+        candidates = [r for r in results if r.get("proposal") and r.get("recommendation") == "apply"]
+        if not candidates:
+            print("No 'apply' proposals found in results.json. Run with --propose first.")
+            sys.exit(0)
+
+        print(color(f"\n=== 提案レビュー ({len(candidates)}件) ===", "bold"))
+        print("各提案を確認して y/n で承認してください。\n")
+
+        submitted = 0
+        with LancersSession(headless=False) as session:
+            session.ensure_logged_in()
+            for i, r in enumerate(candidates, 1):
+                print(color(f"\n[{i}/{len(candidates)}] {r['title']}", "bold"))
+                print(f"  予算:   {r['budget']}")
+                print(f"  スコア: {r['score']}/10  {r['reason']}")
+                print(f"  URL:    {r['url']}")
+                print(f"\n  {'─'*60}")
+                for line in r["proposal"].splitlines():
+                    print(f"  {line}")
+                print(f"  {'─'*60}\n")
+
+                webbrowser.open(r["url"])
+                answer = input("  この提案を送信しますか？ [y/N/q(終了)] ").strip().lower()
+                if answer == "q":
+                    break
+                if answer != "y":
+                    print("  スキップ")
+                    continue
+
+                ok = session.submit_proposal(
+                    project_url=r["url"],
+                    proposal_text=r["proposal"],
+                    budget=r.get("budget", ""),
+                    confirm=False,
+                )
+                if ok:
+                    submitted += 1
+                    print(color("  送信完了！", "apply"))
+                else:
+                    print("  送信失敗（手動で確認してください）")
+
+        print(color(f"\n{submitted}件送信しました。", "bold"))
+        return
 
     # --- UPDATE PROFILE (standalone action) ---
     if args.update_profile:

@@ -367,6 +367,8 @@
 
             <div class="reason">${esc(p.reason)}</div>
 
+            ${p.win_factor ? `<div class="reason" style="border-left-color:#06b6d4;background:#ecfeff;color:#0e7490">🏆 勝ち要因: ${esc(p.win_factor)}</div>` : ""}
+
             ${p.apply_tip ? `<div class="reason" style="border-left-color:#818cf8;background:#eef2ff;color:#3730a3">💡 ${esc(p.apply_tip)}</div>` : ""}
 
             ${hasProposal ? `

@@ -31,26 +31,41 @@ def _load_api_key() -> str:
 
 client = anthropic.Anthropic(api_key=_load_api_key())
 
-SYSTEM_PROMPT = """あなたはランサーズ（日本最大のクラウドソーシングサービス）で副業案件を探しているフリーランサーをサポートするビジネスアドバイザーです。
+SYSTEM_PROMPT = """あなたはランサーズで実際に案件を受注し続けているWeb制作・EC構築の専門フリーランサーです。
+以下のフリーランサーの立場で、「勝てる案件かどうか」を厳しく見極めてください。
 
-フリーランサーのスキルと対象分野：
-- ECサイト構築（Shopify、WooCommerce、BASE、STORES、カラーミーショップ）
-- Webサイト・ホームページ制作（WordPress、HTML/CSS、LP制作）
-- React / Next.js を使ったWebアプリ開発
-- 小〜中規模の案件を中心に探している
+【このフリーランサーの強み（競合との差別化）】
+- Shopify Partner of the Year 2022受賞（最大の差別化ポイント）
+- eギフトサービス（国内500社以上導入）の開発・運用経験
+- Shopify / WordPress / React / Next.js をすべて自分で実装できる
+- デザインから実装まで一貫対応（ディレクター不要）
+- AI機能実装（Claude / OpenAI API）も対応可能
+- 日英バイリンガル対応
 
-各案件に対して以下のJSONで評価を返してください：
-- score: 1〜10の整数（10＝必ず応募、1＝スキップ）
-- recommendation: "apply" | "maybe" | "skip"
-- reason: 1〜2文の評価コメント（日本語で）
-- apply_tip: 提案文作成のための具体的なアドバイス1つ（日本語で）
+【スキルセット】ECサイト構築、Shopify、WooCommerce、WordPress、LP制作、React/Next.js、TypeScript、Webアプリ開発
 
-スコア基準：
-- 予算：高い固定報酬ほど高スコア。1万円未満のタスクは低スコア
-- スキル適合度：EC・Shopify・WooCommerce・ネットショップ・WordPress・LP・ホームページ制作は高スコア
-- 競争率：提案数が少ないほど有利
-- 明確さ：要件が明確な案件は納品しやすい
-- 注意：「応相談」の予算・単純作業・データ入力は低スコア"""
+【勝てる案件の条件（高スコア）】
+1. 要件が具体的で明確（納品後トラブルが少ない）
+2. 予算が作業量に見合っている（固定5万円以上、または月額20万円以上）
+3. Shopify・EC・WordPress・LP制作など直接スキルマッチ
+4. 新着（NEWバッジ）または提案数が少ない（競争率低）
+5. 長期継続の可能性がある案件
+6. クライアントの課題が明確で、AnyReachの実績が直接刺さる
+
+【避けるべき案件（低スコア）】
+- 予算「応相談」「要見積もり」のみで金額の手がかりがない
+- 要件が曖昧すぎて納品基準が不明
+- デザインのみ・コピー作成のみなど専門外
+- データ入力・単純作業・文字起こし
+- 固定5千円未満のマイクロタスク
+- 競合が圧倒的に強い大手向け常駐案件（週5必須など）
+
+各案件を以下のJSONで評価してください：
+- score: 1〜10の整数
+- recommendation: "apply"（7点以上）| "maybe"（4〜6点）| "skip"（3点以下）
+- reason: 「なぜ勝てるか／なぜ勝てないか」を具体的に1〜2文（日本語）
+- apply_tip: 「この案件でAnyReachが他社に勝つための具体的な差別化ポイント」1文（日本語）
+- win_factor: この案件で最も重要な勝ち要因キーワード（例: "Shopify実績" "新着・競合少" "予算適正"）"""
 
 USER_PROMPT_TEMPLATE = """以下の{count}件のランサーズ案件を分析し、同じ順番でJSON配列として評価を返してください。
 
@@ -233,6 +248,7 @@ def merge_and_rank(projects: list[Project], assessments: list[dict]) -> list[dic
                 "recommendation": a.get("recommendation", "maybe"),
                 "reason": a.get("reason", ""),
                 "apply_tip": a.get("apply_tip", ""),
+                "win_factor": a.get("win_factor", ""),
             }
         )
     return sorted(merged, key=lambda x: x["score"], reverse=True)

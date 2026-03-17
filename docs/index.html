@@ -5,228 +5,360 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lancers Scout</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
-      background: #f0f2f5;
-      color: #111827;
-      min-height: 100vh;
-      font-size: 15px;
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --border: #d1d1d6;
+      --border-light: #e8e8ed;
+      --text-1: #1d1d1f;
+      --text-2: #6e6e73;
+      --text-3: #aeaeb2;
+      --accent: #1d1d1f;
+      --accent-fg: #ffffff;
+
+      --c-apply: #1c8c42;
+      --c-apply-bg: #f0faf4;
+      --c-apply-border: #34c759;
+      --c-maybe: #b45309;
+      --c-maybe-bg: #fffbeb;
+      --c-maybe-border: #f59e0b;
+      --c-skip: #c2381e;
+      --c-skip-bg: #fff5f5;
+      --c-skip-border: #ff453a;
+
+      --radius: 10px;
+      --radius-sm: 6px;
     }
 
-    /* HEADER */
+    body {
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+        -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
     header {
-      background: #fff;
-      border-bottom: 2px solid #e5e7eb;
-      padding: 14px 24px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 12px 24px;
       display: flex;
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
       position: sticky;
       top: 0;
-      z-index: 10;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      z-index: 100;
     }
 
-    header h1 {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #111827;
-      letter-spacing: -0.01em;
+    .logo {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-1);
       white-space: nowrap;
     }
-    header h1 span { color: #4f46e5; }
+    .logo span { color: var(--text-3); font-weight: 400; }
+
+    .header-stats {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      background: var(--surface);
+    }
+    .stat-pill.apply { color: var(--c-apply); border-color: var(--c-apply-border); background: var(--c-apply-bg); }
+    .stat-pill.maybe { color: var(--c-maybe); border-color: var(--c-maybe-border); background: var(--c-maybe-bg); }
+    .stat-pill.skip  { color: var(--c-skip);  border-color: var(--c-skip-border);  background: var(--c-skip-bg);  }
 
     .header-right {
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     #updated {
-      font-size: 0.78rem;
-      color: #6b7280;
+      font-size: 0.75rem;
+      color: var(--text-3);
     }
 
-    .refresh-btn {
+    .btn {
       font-size: 0.78rem;
-      padding: 5px 14px;
-      border-radius: 6px;
-      border: 1.5px solid #d1d5db;
-      background: #fff;
-      color: #374151;
-      cursor: pointer;
       font-weight: 600;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-1);
+      cursor: pointer;
+      transition: background 0.1s, border-color 0.1s;
     }
-    .refresh-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+    .btn:hover { background: var(--bg); border-color: var(--text-3); }
 
-    .stats { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    .stat {
-      font-size: 0.82rem;
-      font-weight: 700;
-      padding: 5px 14px;
-      border-radius: 999px;
-    }
-    .stat.apply { background: #dcfce7; color: #15803d; }
-    .stat.maybe { background: #fef9c3; color: #92400e; }
-    .stat.skip  { background: #fee2e2; color: #b91c1c; }
-
-    /* TOOLBAR */
+    /* ── TOOLBAR ── */
     .toolbar {
-      padding: 14px 24px;
+      padding: 12px 24px;
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       flex-wrap: wrap;
-      background: #f0f2f5;
     }
 
     .filter-btn {
-      padding: 8px 20px;
-      border-radius: 999px;
-      border: 2px solid #d1d5db;
-      background: #fff;
-      color: #374151;
-      cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      transition: all 0.12s;
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 0.1s;
     }
-    .filter-btn:hover { border-color: #4f46e5; color: #4f46e5; }
-    .filter-btn.active { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+    .filter-btn:hover { border-color: var(--text-3); color: var(--text-1); }
+    .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-fg);
+    }
 
     .count-label {
-      font-size: 0.82rem;
-      color: #6b7280;
+      font-size: 0.78rem;
+      color: var(--text-3);
       margin-left: auto;
-      font-weight: 500;
     }
 
-    /* GRID */
+    /* ── GRID ── */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 16px;
-      padding: 4px 24px 48px;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 14px;
+      padding: 4px 24px 56px;
     }
 
-    /* CARD */
+    /* ── CARD ── */
     .card {
-      background: #fff;
-      border-radius: 12px;
-      border: 2px solid #e5e7eb;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border-light);
+      border-left: 3px solid var(--border);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       transition: box-shadow 0.15s, transform 0.15s;
     }
     .card:hover {
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
     }
-
-    .card-stripe { height: 5px; }
-    .apply .card-stripe { background: #22c55e; }
-    .maybe .card-stripe { background: #f59e0b; }
-    .skip  .card-stripe { background: #ef4444; }
+    .card.apply { border-left-color: var(--c-apply-border); }
+    .card.maybe { border-left-color: var(--c-maybe-border); }
+    .card.skip  { border-left-color: var(--c-skip-border);  }
 
     .card-body {
       padding: 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 11px;
+      gap: 12px;
       flex: 1;
     }
 
-    .card-top {
+    /* ── CARD HEADER ── */
+    .card-header {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .score-badge {
-      flex-shrink: 0;
-      font-size: 0.72rem;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 999px;
-      margin-top: 2px;
+    .card-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
     }
-    .apply .score-badge { background: #dcfce7; color: #15803d; }
-    .maybe .score-badge { background: #fef9c3; color: #92400e; }
-    .skip  .score-badge { background: #fee2e2; color: #b91c1c; }
+
+    .score-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.02em;
+    }
+    .apply .score-num { background: var(--c-apply-bg); color: var(--c-apply); }
+    .maybe .score-num { background: var(--c-maybe-bg); color: var(--c-maybe); }
+    .skip  .score-num { background: var(--c-skip-bg);  color: var(--c-skip);  }
+
+    .badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.03em;
+    }
+    .badge-new { background: var(--accent); color: var(--accent-fg); }
+    .badge-win { background: var(--border-light); color: var(--text-2); border: 1px solid var(--border); }
+    .badge-deadline {
+      background: #f0f0f5;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
 
     .card-title {
       font-size: 0.95rem;
       font-weight: 700;
-      line-height: 1.45;
-      color: #111827;
+      line-height: 1.5;
+      color: var(--text-1);
     }
 
-    .badge-new {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 800;
-      background: #4f46e5;
-      color: #fff;
-      padding: 1px 7px;
-      border-radius: 999px;
-      margin-right: 5px;
-      vertical-align: middle;
+    /* ── META ROW ── */
+    .meta-row {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
-    /* META */
-    .meta {
-      display: grid;
-      grid-template-columns: 72px 1fr;
-      gap: 5px 10px;
+    .meta-item {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .meta-label {
+      font-size: 0.72rem;
+      color: var(--text-3);
+      font-weight: 500;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .meta-value {
       font-size: 0.82rem;
+      color: var(--text-1);
+      font-weight: 600;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .meta-label { color: #9ca3af; font-weight: 500; }
-    .meta-value { color: #374151; font-weight: 600; }
 
-    /* REASON */
-    .reason {
-      font-size: 0.82rem;
-      color: #4b5563;
-      line-height: 1.6;
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 10px 12px;
-      border-left: 4px solid #e5e7eb;
-    }
-    .apply .reason { border-left-color: #22c55e; }
-    .maybe .reason { border-left-color: #f59e0b; }
-    .skip  .reason { border-left-color: #ef4444; }
-
-    /* PROPOSAL */
-    .proposal-toggle {
-      font-size: 0.82rem;
-      color: #4f46e5;
-      cursor: pointer;
-      font-weight: 700;
+    /* ── COMPETITOR ── */
+    .competitor {
       display: flex;
       align-items: center;
       gap: 5px;
-      user-select: none;
     }
-    .proposal-toggle:hover { color: #3730a3; }
+    .comp-label {
+      font-size: 0.72rem;
+      color: var(--text-3);
+      font-weight: 500;
+    }
+    .comp-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+    }
+    .comp-low  { background: #f0faf4; color: var(--c-apply); }
+    .comp-mid  { background: var(--c-maybe-bg); color: var(--c-maybe); }
+    .comp-high { background: var(--c-skip-bg);  color: var(--c-skip);  }
+    .comp-hidden { background: var(--border-light); color: var(--text-3); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 0 -18px;
+    }
+
+    /* ── ANALYSIS SECTION ── */
+    .analysis {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .analysis-block {
+      display: flex;
+      gap: 10px;
+    }
+
+    .analysis-key {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-3);
+      white-space: nowrap;
+      padding-top: 2px;
+      min-width: 52px;
+      letter-spacing: 0.04em;
+    }
+
+    .analysis-text {
+      font-size: 0.82rem;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+    .analysis-block.highlight .analysis-text {
+      color: var(--text-1);
+      font-weight: 500;
+    }
+
+    /* ── PROPOSAL ── */
+    .proposal-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .proposal-toggle {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      background: var(--bg);
+      width: fit-content;
+      transition: all 0.1s;
+    }
+    .proposal-toggle:hover { border-color: var(--text-3); color: var(--text-1); }
+    .proposal-toggle.open { background: var(--surface); border-color: var(--text-3); }
 
     .proposal-box { display: none; position: relative; }
     .proposal-box.open { display: block; }
 
     .proposal-text {
-      font-size: 0.84rem;
-      color: #1f2937;
-      background: #f9fafb;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 14px 14px 42px;
-      line-height: 1.8;
+      font-size: 0.82rem;
+      color: var(--text-1);
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 14px 14px 44px;
+      line-height: 1.85;
       white-space: pre-wrap;
     }
 
@@ -234,51 +366,63 @@
       position: absolute;
       bottom: 10px;
       right: 10px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 700;
       padding: 5px 14px;
-      background: #4f46e5;
+      background: var(--accent);
       border: none;
-      border-radius: 6px;
-      color: #fff;
+      border-radius: var(--radius-sm);
+      color: var(--accent-fg);
       cursor: pointer;
-      font-weight: 700;
-      transition: background 0.12s;
+      transition: opacity 0.1s;
     }
-    .copy-btn:hover { background: #3730a3; }
-    .copy-btn.copied { background: #22c55e; }
+    .copy-btn:hover { opacity: 0.8; }
+    .copy-btn.copied { background: var(--c-apply); }
 
-    /* APPLY BUTTON */
+    /* ── CTA ── */
+    .card-footer {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid var(--border-light);
+      margin-top: auto;
+    }
+
     .apply-btn {
-      display: block;
-      text-align: center;
-      background: #4f46e5;
-      color: #fff;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       text-decoration: none;
-      padding: 11px;
-      font-size: 0.88rem;
+      background: var(--accent);
+      color: var(--accent-fg);
+      padding: 11px 16px;
+      font-size: 0.82rem;
       font-weight: 700;
-      transition: background 0.12s;
       letter-spacing: 0.01em;
+      transition: opacity 0.1s;
     }
-    .apply-btn:hover { background: #3730a3; }
+    .apply-btn:hover { opacity: 0.85; }
+    .apply-btn .arrow { font-size: 0.9em; }
 
+    /* ── EMPTY STATE ── */
     .message {
       grid-column: 1 / -1;
       text-align: center;
-      color: #9ca3af;
+      color: var(--text-3);
       padding: 80px 24px;
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Lancers <span>Scout</span></h1>
-  <div class="stats" id="stats"></div>
+  <div class="logo">Lancers <span>Scout</span></div>
+  <div class="header-stats" id="stats"></div>
   <div class="header-right">
     <span id="updated"></span>
-    <button class="refresh-btn" onclick="load()">再読み込み</button>
+    <button class="btn" onclick="load()">再読み込み</button>
   </div>
 </header>
 
@@ -310,7 +454,7 @@
         if (lm) {
           const d = new Date(lm);
           document.getElementById("updated").textContent =
-            "最終更新: " + d.toLocaleDateString("ja-JP") + " " + d.toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"});
+            "更新: " + d.toLocaleDateString("ja-JP") + " " + d.toLocaleTimeString("ja-JP", {hour:"2-digit", minute:"2-digit"});
         }
       }).catch(() => {});
     } catch {
@@ -324,14 +468,28 @@
     const maybe = all.filter(p => p.recommendation === "maybe").length;
     const skip  = all.filter(p => p.recommendation === "skip").length;
     document.getElementById("stats").innerHTML =
-      `<span class="stat apply">応募推奨 ${apply}件</span>` +
-      `<span class="stat maybe">検討 ${maybe}件</span>` +
-      `<span class="stat skip">スキップ ${skip}件</span>`;
+      `<span class="stat-pill apply">応募 ${apply}</span>` +
+      `<span class="stat-pill maybe">検討 ${maybe}</span>` +
+      `<span class="stat-pill skip">スキップ ${skip}</span>`;
+  }
+
+  function competitorBadge(raw) {
+    const s = String(raw || "").trim();
+    if (!s || s === "提案非公開" || s === "非公開") {
+      return `<span class="comp-badge comp-hidden">非公開</span>`;
+    }
+    const n = parseInt(s, 10);
+    if (isNaN(n)) {
+      return `<span class="comp-badge comp-hidden">${esc(s)}</span>`;
+    }
+    if (n <= 5)  return `<span class="comp-badge comp-low">${n}件・少</span>`;
+    if (n <= 15) return `<span class="comp-badge comp-mid">${n}件・中</span>`;
+    return `<span class="comp-badge comp-high">${n}件・多</span>`;
   }
 
   function render() {
     const filtered = filter === "all" ? all : all.filter(p => p.recommendation === filter);
-    document.getElementById("count-label").textContent = filtered.length + "件表示中";
+    document.getElementById("count-label").textContent = filtered.length + "件";
     const grid = document.getElementById("grid");
 
     if (!filtered.length) {
@@ -339,73 +497,114 @@
       return;
     }
 
+    const recLabel = { apply: "応募推奨", maybe: "検討", skip: "スキップ" };
+
     grid.innerHTML = filtered.map(p => {
       const hasProposal = p.proposal && p.proposal.trim();
-      const recLabel = { apply: "応募推奨", maybe: "検討", skip: "スキップ" }[p.recommendation] || p.recommendation;
+      const scoreLabel = recLabel[p.recommendation] || p.recommendation;
+
+      const deadlineBadge = p.deadline_days
+        ? `<span class="badge badge-deadline">納期目安 ${p.deadline_days}日</span>`
+        : "";
+
+      const winBadge = p.win_factor
+        ? `<span class="badge badge-win">${esc(p.win_factor)}</span>`
+        : "";
+
+      const reasonBlock = p.reason
+        ? `<div class="analysis-block highlight">
+             <span class="analysis-key">分析</span>
+             <span class="analysis-text">${esc(p.reason)}</span>
+           </div>`
+        : "";
+
+      const tipBlock = p.apply_tip
+        ? `<div class="analysis-block">
+             <span class="analysis-key">差別化</span>
+             <span class="analysis-text">${esc(p.apply_tip)}</span>
+           </div>`
+        : "";
+
+      const proposalSection = hasProposal
+        ? `<div class="proposal-section">
+             <div class="divider"></div>
+             <div class="proposal-toggle" onclick="toggleProposal(this)">
+               <span class="toggle-icon">&#9654;</span>
+               <span class="toggle-label">提案文を確認</span>
+             </div>
+             <div class="proposal-box">
+               <div class="proposal-text">${esc(p.proposal)}</div>
+               <button class="copy-btn" onclick="copyProposal(this)">コピー</button>
+             </div>
+           </div>`
+        : "";
+
       return `
         <div class="card ${p.recommendation}">
-          <div class="card-stripe"></div>
           <div class="card-body">
-            <div class="card-top">
-              <span class="score-badge">${p.score}/10</span>
-              <div class="card-title">
-                ${p.is_new ? '<span class="badge-new">NEW</span>' : ""}
-                ${esc(p.title)}
+            <div class="card-header">
+              <div class="card-tags">
+                <span class="score-num">${p.score}/10 · ${scoreLabel}</span>
+                ${p.is_new ? '<span class="badge badge-new">NEW</span>' : ""}
+                ${winBadge}
+                ${deadlineBadge}
+              </div>
+              <div class="card-title">${esc(p.title)}</div>
+            </div>
+
+            <div class="meta-row">
+              <div class="meta-item">
+                <span class="meta-label">予算</span>
+                <span class="meta-value">${esc(p.budget)}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">カテゴリ</span>
+                <span class="meta-value">${esc(p.category)}</span>
+              </div>
+              <div class="meta-item competitor">
+                <span class="comp-label">競合</span>
+                ${competitorBadge(p.proposal_count)}
               </div>
             </div>
 
-            <div class="meta">
-              <span class="meta-label">予算</span>
-              <span class="meta-value">${esc(p.budget)}</span>
-              <span class="meta-label">カテゴリ</span>
-              <span class="meta-value">${esc(p.category)}</span>
-              <span class="meta-label">提案数</span>
-              <span class="meta-value">${esc(p.proposal_count)}</span>
-              <span class="meta-label">キーワード</span>
-              <span class="meta-value">${esc(p.keyword)}</span>
+            <div class="divider"></div>
+
+            <div class="analysis">
+              ${reasonBlock}
+              ${tipBlock}
             </div>
 
-            <div class="reason">${esc(p.reason)}</div>
-
-            ${p.win_factor ? `<div class="reason" style="border-left-color:#06b6d4;background:#ecfeff;color:#0e7490">🏆 勝ち要因: ${esc(p.win_factor)}</div>` : ""}
-
-            ${p.apply_tip ? `<div class="reason" style="border-left-color:#818cf8;background:#eef2ff;color:#3730a3">💡 ${esc(p.apply_tip)}</div>` : ""}
-
-            ${hasProposal ? `
-              <div class="proposal-toggle" onclick="toggle(this)">
-                <span class="arrow">▶</span> 提案文を見る
-              </div>
-              <div class="proposal-box">
-                <div class="proposal-text">${esc(p.proposal)}</div>
-                <button class="copy-btn" onclick="copy(this)">コピー</button>
-              </div>
-            ` : ""}
+            ${proposalSection}
           </div>
-          <a class="apply-btn" href="${esc(p.url)}" target="_blank" rel="noopener">
-            Lancers で開く →
-          </a>
+
+          <div class="card-footer">
+            <a class="apply-btn" href="${esc(p.url)}" target="_blank" rel="noopener">
+              Lancers で開く <span class="arrow">→</span>
+            </a>
+          </div>
         </div>`;
     }).join("");
   }
 
-  function toggle(el) {
+  function toggleProposal(el) {
     const box = el.nextElementSibling;
     const open = box.classList.toggle("open");
-    el.querySelector(".arrow").textContent = open ? "▼" : "▶";
-    el.childNodes[1].textContent = open ? " 提案文を閉じる" : " 提案文を見る";
+    el.classList.toggle("open", open);
+    el.querySelector(".toggle-icon").innerHTML = open ? "&#9660;" : "&#9654;";
+    el.querySelector(".toggle-label").textContent = open ? "提案文を閉じる" : "提案文を確認";
   }
 
-  function copy(btn) {
+  function copyProposal(btn) {
     const text = btn.previousElementSibling.textContent.trim();
     navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = "コピー済 ✓";
+      btn.textContent = "コピー完了";
       btn.classList.add("copied");
       setTimeout(() => { btn.textContent = "コピー"; btn.classList.remove("copied"); }, 2000);
     });
   }
 
   function esc(s) {
-    return String(s || "")
+    return String(s ?? "")
       .replace(/&/g,"&amp;").replace(/</g,"&lt;")
       .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }

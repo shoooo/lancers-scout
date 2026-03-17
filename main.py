@@ -140,6 +140,7 @@ def main() -> None:
                     proposal_text=r["proposal"],
                     budget=r.get("budget", ""),
                     confirm=False,
+                    deadline_days=r.get("deadline_days", 30),
                 )
                 if ok:
                     submitted += 1
@@ -225,7 +226,9 @@ def main() -> None:
             print(f"Writing 提案文 for top {len(targets)} 'apply' project(s)...\n")
             for r in targets:
                 print(f"  Writing proposal for: {r['title'][:60]}...")
-                r["proposal"] = generate_proposal(r, profile)
+                result = generate_proposal(r, profile)
+                r["proposal"] = result["proposal"]
+                r["deadline_days"] = result["deadline_days"]
 
     # --- DISPLAY ---
     top = ranked[: args.top]

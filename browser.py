@@ -184,7 +184,7 @@ class LancersSession:
         self.page.goto(url, wait_until="domcontentloaded", timeout=15000)
         return self.page.content()
 
-    def submit_proposal(self, project_url: str, proposal_text: str, budget: str = None, confirm: bool = True) -> bool:
+    def submit_proposal(self, project_url: str, proposal_text: str, budget: str = None, confirm: bool = True, deadline_days: int = 30) -> bool:
         """
         Navigate to a project's proposal form and submit a proposal.
         Returns True if submitted successfully.
@@ -214,9 +214,9 @@ class LancersSession:
             return False
         textarea.fill(proposal_text)
 
-        # Fill 完了予定日 (30 days from today) via react-datepicker input
+        # Fill 完了予定日 via react-datepicker input
         import datetime
-        deadline = datetime.date.today() + datetime.timedelta(days=30)
+        deadline = datetime.date.today() + datetime.timedelta(days=deadline_days)
         deadline_str = deadline.strftime("%Y/%m/%d")
         date_input = self.page.locator('.react-datepicker__input-container input').first
         if date_input.count():

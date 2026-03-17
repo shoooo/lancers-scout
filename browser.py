@@ -228,15 +228,18 @@ class LancersSession:
 
         textarea.fill(proposal_text)
 
-        # Fill budget if provided and field exists
+        # Fill budget if provided and field is visible
         if budget:
             budget_field = self.page.query_selector(
                 'input[name*="budget"], input[name*="price"], input[name*="amount"]'
             )
-            if budget_field:
-                clean_budget = "".join(c for c in budget if c.isdigit())
+            if budget_field and budget_field.is_visible():
+                clean_budget = "".join(c for c in budget if c.isdigit())[:8]  # cap at 8 digits
                 if clean_budget:
-                    budget_field.fill(clean_budget)
+                    try:
+                        budget_field.fill(clean_budget, timeout=3000)
+                    except Exception:
+                        pass  # budget field is optional
 
         # Submit
         submit_btn = self.page.query_selector(

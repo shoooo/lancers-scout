@@ -186,76 +186,46 @@ class LancersSession:
 
     def submit_proposal(self, project_url: str, proposal_text: str, budget: str = None, confirm: bool = True) -> bool:
         """
-        Navigate to a project and submit a proposal.
-        If confirm=True, prints the proposal and asks for user confirmation first.
+        Navigate to a project's proposal form and submit a proposal.
         Returns True if submitted successfully.
         """
         self.ensure_logged_in()
 
-        # Go to the project detail page
-        self.page.goto(project_url, wait_until="domcontentloaded", timeout=15000)
+        # Extract project ID and go directly to the proposal form
+        import re
+        match = re.search(r"/work/detail/(\d+)", project_url)
+        if not match:
+            print(f"  [skip] Could not parse project ID from {project_url}")
+            return False
+        project_id = match.group(1)
+        propose_url = f"{BASE_URL}/work/propose_start/{project_id}"
 
-        # Click 「提案する」 button
-        propose_btn = self.page.query_selector(
-            'a:has-text("提案する"), button:has-text("提案する"), a[href*="propose"]'
-        )
-        if not propose_btn:
-            print(f"  [skip] No '提案する' button found on {project_url}")
+        self.page.goto(propose_url, wait_until="domcontentloaded", timeout=15000)
+
+        # Check we're on the proposal form (not redirected to login)
+        if "login" in self.page.url or "propose_start" not in self.page.url:
+            print(f"  [skip] Could not reach proposal form: {self.page.url}")
             return False
 
-        if confirm:
-            print(f"\n  Proposal to submit:")
-            print(f"  URL: {project_url}")
-            print(f"  {'─'*50}")
-            for line in proposal_text.splitlines():
-                print(f"  {line}")
-            print(f"  {'─'*50}")
-            answer = input("  Submit this proposal? [y/N] ").strip().lower()
-            if answer != "y":
-                print("  Skipped.")
-                return False
-
-        propose_btn.click()
-        self.page.wait_for_load_state("domcontentloaded", timeout=10000)
-
-        # Fill proposal text
-        textarea = self.page.query_selector(
-            'textarea[name*="body"], textarea[name*="message"], textarea[name*="proposal"], textarea'
-        )
-        if not textarea:
-            print(f"  [error] Could not find proposal textarea on {self.page.url}")
+        # Fill proposal description
+        textarea = self.page.locator('textarea[name="data[Proposal][description]"]')
+        if not textarea.count():
+            print(f"  [error] Proposal textarea not found on {self.page.url}")
             return False
-
         textarea.fill(proposal_text)
 
-        # Fill budget if provided and field is visible
-        if budget:
-            budget_field = self.page.query_selector(
-                'input[name*="budget"], input[name*="price"], input[name*="amount"]'
-            )
-            if budget_field and budget_field.is_visible():
-                clean_budget = "".join(c for c in budget if c.isdigit())[:8]  # cap at 8 digits
-                if clean_budget:
-                    try:
-                        budget_field.fill(clean_budget, timeout=3000)
-                    except Exception:
-                        pass  # budget field is optional
-
-        # Submit
-        submit_btn = self.page.query_selector(
-            'button[type="submit"]:has-text("提案"), input[type="submit"], button:has-text("送信")'
-        )
-        if not submit_btn:
-            print("  [error] Could not find submit button.")
+        # Click submit button
+        submit_btn = self.page.locator('input[name="send"][type="submit"]')
+        if not submit_btn.count():
+            print("  [error] Submit button not found.")
             return False
 
         submit_btn.click()
-        self.page.wait_for_load_state("domcontentloaded", timeout=10000)
+        self.page.wait_for_load_state("domcontentloaded", timeout=15000)
 
-        # Check success
-        success = self.page.query_selector('[class*="success"], [class*="complete"], :has-text("提案しました")')
-        if success or "complete" in self.page.url or "success" in self.page.url:
-            print(f"  Proposal submitted!")
+        # Success = navigated away from propose_start
+        if "propose_start" not in self.page.url:
+            print(f"  提案を送信しました！")
             return True
         else:
             print(f"  Warning: submission may not have completed. Check {self.page.url}")

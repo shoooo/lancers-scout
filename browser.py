@@ -214,6 +214,17 @@ class LancersSession:
             return False
         textarea.fill(proposal_text)
 
+        # Fill 完了予定日 (30 days from today) via react-datepicker input
+        import datetime
+        deadline = datetime.date.today() + datetime.timedelta(days=30)
+        deadline_str = deadline.strftime("%Y/%m/%d")
+        date_input = self.page.locator('.react-datepicker__input-container input').first
+        if date_input.count():
+            date_input.click()
+            date_input.fill(deadline_str)
+            # Press Enter to confirm the date selection
+            date_input.press("Enter")
+
         # Click submit button
         submit_btn = self.page.locator('input[name="send"][type="submit"]')
         if not submit_btn.count():
